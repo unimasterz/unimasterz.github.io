@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anatomy of the line your provider hands you | Wirebound</title>
+<meta name="description" content="Every part of the line a provider hands you, what each part decides, and the two characters that change which side resolves your hostnames.">
+<link rel="canonical" href="https://unimasterz.github.io/start/reading-a-connection-line/">
+<meta property="og:title" content="Anatomy of the line your provider hands you | Wirebound">
+<meta property="og:description" content="Every part of the line a provider hands you, what each part decides, and the two characters that change which side resolves your hostnames.">
+<meta property="og:url" content="https://unimasterz.github.io/start/reading-a-connection-line/">
+<meta property="og:site_name" content="Wirebound">
+<meta name="color-scheme" content="light dark">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Anatomy of the line your provider hands you","description":"Every part of the line a provider hands you, what each part decides, and the two characters that change which side resolves your hostnames.","url":"https://unimasterz.github.io/start/reading-a-connection-line/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+--sheet:#ffffff;--page:#f4f6f9;--sunk:#eaeef4;
+--ink:#16181d;--ink2:#4a515e;--faint:#79818f;
+--edge:#dbe1ea;--edge2:#eef1f6;
+--mark:#a3182b;--mark2:#c8395079;--warn:#8a5a04;--warnbg:#fdf6e6;--warnedge:#eddcae;
+--code:#f5f7fa;--codeedge:#e3e8f0;
+--rad:5px;
+--sans:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+--mono:"Cascadia Mono",Consolas,"DejaVu Sans Mono",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-skin="day"]){
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}}
+:root[data-skin="night"]{
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);
+font:400 15.5px/1.62 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--mark);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--mark);outline-offset:2px;border-radius:3px}
+
+/* шапка */
+.hdr{background:var(--sheet);border-bottom:1px solid var(--edge);position:sticky;top:0;z-index:20}
+.hdr .in2{max-width:1360px;margin:0 auto;padding:0 22px;height:54px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:16.5px;color:var(--ink);letter-spacing:-.2px}
+.brand em{font-style:normal;font-weight:400;font-size:12px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
+.hnav{display:flex;gap:3px;margin-left:auto}
+.hnav a{padding:6px 11px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;font-weight:500}
+.hnav a:hover{background:var(--sunk);text-decoration:none;color:var(--ink)}
+.hnav a[aria-current]{color:var(--mark);background:var(--sunk)}
+.skin{border:1px solid var(--edge);background:transparent;color:var(--ink2);
+border-radius:var(--rad);padding:5px 10px;font:500 12.5px var(--sans);cursor:pointer}
+.skin:hover{background:var(--sunk)}
+
+/* каркас */
+.wrap{max-width:1360px;margin:0 auto;padding:26px 22px 60px;display:grid;
+grid-template-columns:250px minmax(0,1fr) 196px;gap:34px;align-items:start}
+.side{position:sticky;top:78px;max-height:calc(100vh - 100px);overflow:auto;padding-right:6px}
+.side h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.side ol{list-style:none;margin:0 0 18px;padding:0}
+.side li{margin:0}
+.side li a{display:block;padding:4px 9px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;
+border-left:2px solid transparent}
+.side li a:hover{background:var(--sunk);color:var(--ink);text-decoration:none}
+.side li a[aria-current]{color:var(--mark);border-left-color:var(--mark);background:var(--sunk);font-weight:600}
+
+.doc{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:34px 40px 42px;min-width:0}
+.crumb{font-size:12.5px;color:var(--faint);margin:0 0 12px}
+.crumb a{color:var(--faint)}
+.doc h1{margin:0 0 10px;font-size:29px;line-height:1.22;font-weight:750;letter-spacing:-.5px;text-wrap:balance}
+.doc h2{margin:36px 0 12px;font-size:20px;font-weight:700;letter-spacing:-.2px;
+padding-bottom:7px;border-bottom:1px solid var(--edge2);scroll-margin-top:74px}
+.doc h3{margin:26px 0 8px;font-size:16px;font-weight:700;scroll-margin-top:74px}
+.doc p{margin:0 0 15px;max-width:73ch}
+.doc ul,.doc ol{margin:0 0 15px;padding-left:22px;max-width:71ch}
+.doc li{margin:0 0 6px}
+.stand{font-size:16.5px;color:var(--ink2);margin:0 0 24px;max-width:66ch;line-height:1.6}
+
+/* таблица-справка */
+.tbl{width:100%;border-collapse:collapse;margin:0 0 20px;font-size:13.8px;display:table}
+.tblwrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--edge);border-radius:8px}
+.tblwrap .tbl{margin:0;border:0}
+.tbl th{text-align:left;padding:9px 13px;background:var(--sunk);font-weight:700;font-size:12px;
+letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--edge)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--edge2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{white-space:nowrap;font-family:var(--mono);font-size:12.8px;color:var(--ink)}
+.tbl .yes{color:var(--mark);font-weight:700}
+.tbl .no{color:var(--faint)}
+
+/* код */
+pre{margin:0 0 18px;background:var(--code);border:1px solid var(--codeedge);border-radius:8px;
+padding:14px 16px;overflow-x:auto;font:13.2px/1.55 var(--mono)}
+code{font-family:var(--mono);font-size:.905em}
+p code,li code,td code{background:var(--code);border:1px solid var(--codeedge);
+border-radius:4px;padding:1px 5px}
+
+/* врезки */
+.warn,.tip{border:1px solid var(--warnedge);background:var(--warnbg);border-radius:8px;
+padding:13px 16px;margin:0 0 18px;font-size:14.4px}
+.warn b,.tip b{display:block;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--warn);margin-bottom:4px}
+.tip{border-color:var(--edge);background:var(--sunk)}
+.tip b{color:var(--faint)}
+.warn p:last-child,.tip p:last-child{margin-bottom:0}
+
+/* правая полоса */
+.strip{position:sticky;top:78px;font-size:13px}
+.strip h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.strip a{display:block;padding:3px 0 3px 10px;color:var(--ink2);border-left:2px solid var(--edge)}
+.strip a:hover{color:var(--mark);border-left-color:var(--mark2);text-decoration:none}
+
+/* низ статьи */
+.pager{display:flex;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--edge2)}
+.pager a{flex:1;border:1px solid var(--edge);border-radius:8px;padding:11px 14px;color:var(--ink)}
+.pager a:hover{border-color:var(--mark);text-decoration:none}
+.pager s{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--faint);text-decoration:none;margin-bottom:3px}
+.pager .rt{text-align:right}
+
+/* главная */
+.hero{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:38px 40px;margin:0 0 24px}
+.hero h1{margin:0 0 12px;font-size:34px;line-height:1.18;font-weight:750;letter-spacing:-.7px;max-width:19ch}
+.hero p{margin:0 0 8px;font-size:17px;color:var(--ink2);max-width:64ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px}
+.slab{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:19px 21px}
+.slab h3{margin:0 0 4px;font-size:15.5px;font-weight:700}
+.slab h3 a{color:var(--ink)}
+.slab h3 a:hover{color:var(--mark);text-decoration:none}
+.slab p{margin:0 0 11px;font-size:13.6px;color:var(--faint)}
+.slab ul{list-style:none;margin:0;padding:0;font-size:13.8px}
+.slab li{margin:0 0 4px;padding-left:13px;position:relative}
+.slab li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--edge)}
+
+/* рекламное место, ровно одно на страницу */
+.promo{margin:0 0 24px}
+.promo span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+color:var(--faint);margin-bottom:5px}
+.promo img{display:block;width:100%;height:auto;border-radius:9px;border:1px solid var(--edge)}
+
+.base{border-top:1px solid var(--edge);background:var(--sheet);margin-top:auto}
+.base .in2{max-width:1360px;margin:0 auto;padding:20px 22px;display:flex;gap:16px;
+align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
+.base a{color:var(--ink2)}
+.base .rt{margin-left:auto}
+
+@media (max-width:1160px){
+.wrap{grid-template-columns:230px minmax(0,1fr);gap:26px}
+.strip{display:none}}
+@media (max-width:860px){
+.wrap{grid-template-columns:1fr;padding:18px 15px 46px}
+.side{position:static;max-height:none;border-bottom:1px solid var(--edge);padding-bottom:14px}
+.doc{padding:24px 20px 30px}
+.doc h1{font-size:25px}
+.hero{padding:26px 22px}
+.hero h1{font-size:27px}
+.hdr .in2{padding:0 15px;gap:12px}
+.hnav a{padding:6px 8px;font-size:13px}}
+</style></head><body>
+<header class="hdr"><div class="in2">
+<a class="brand" href="/">Wirebound <em>client reference</em></a>
+<nav class="hnav"><a href="/start/" aria-current="true">Before the tables</a><a href="/python/">Python</a></nav>
+<button class="skin" type="button" id="sk">theme</button>
+</div></header>
+<div class="wrap">
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/" aria-current="page">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/start/">Before the tables</a></p><h1>Anatomy of the line your provider hands you</h1><p class="stand">A provider gives you something like <code>user:pass@198.51.100.14:8080</code>. Five pieces, and four of them change behaviour. This page takes the line apart so the per-client tables make sense.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: private datacenter IPv4 and SOCKS5, unmetered traffic, free two hour trial" width="1140" height="150" loading="lazy"></a></div><h2 id="the-shape">The shape</h2>
+<p>Written out in full, the line your client wants looks like this:</p>
+<pre><code>scheme://user:password@host:port</code></pre>
+<p>Providers rarely hand it over in that form. More often you get the four values in a panel and assemble the line yourself, which is where the mistakes start.</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Piece</th><th>Decides</th><th>Common mistake</th></tr></thead><tbody><tr><td>scheme</td><td>how the client talks to the hop, and who resolves names</td><td>copying <code>https://</code> because the target is encrypted</td></tr><tr><td>user, password</td><td>whether you are allowed through</td><td>special characters left unescaped</td></tr><tr><td>host</td><td>which machine you reach</td><td>using the panel's display name instead of the address</td></tr><tr><td>port</td><td>which service on that machine answers</td><td>assuming the port implies the scheme</td></tr></tbody></table></div>
+<h2 id="the-scheme-is-not-the-target-s-scheme">The scheme is not the target's scheme</h2>
+<p>This is the single most common error, and it is worth stating flatly.</p>
+<p>The scheme in the line describes <strong>how you reach the hop</strong>, not what the destination is. Fetching an encrypted page through a plain hop is completely normal and is what almost everyone is doing.</p>
+<pre><code># correct for nearly every provider
+http://user:pass@198.51.100.14:8080</code></pre>
+<p># wrong unless the hop itself speaks TLS to you, which is rare https://user:pass@198.51.100.14:8080 ```</p>
+<p>In Python this bites in a specific place, because the mapping is keyed by the target's scheme while both values describe the hop:</p>
+<pre><code>proxies = {
+    "http":  "http://user:pass@198.51.100.14:8080",
+    "https": "http://user:pass@198.51.100.14:8080",
+}</code></pre>
+<p>Both values are <code>http://</code>. Everyone puts <code>https://</code> in the second slot once.</p>
+<h2 id="the-two-characters-that-move-name-resolution">The two characters that move name resolution</h2>
+<p>For the other family of schemes, one trailing letter decides which side looks up your hostnames.</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Written as</th><th>Name resolved by</th><th>Use when</th></tr></thead><tbody><tr><td><code>socks5://</code></td><td>your machine</td><td>you want local resolution deliberately</td></tr><tr><td><code>socks5h://</code></td><td>the far end</td><td>you want the lookup to happen at the hop</td></tr></tbody></table></div>
+<p>The <code>h</code> stands for hostname, meaning the hostname is passed along rather than an address. Most people who reach for this family want <code>socks5h</code> and type <code>socks5</code>, then spend an evening wondering why the results look like they came from home.</p>
+<p>Not every client implements both spellings. The per-client pages say which.</p>
+<div class="tip"><b>Confirm rather than assume</b><p>Whichever spelling you use, run probe two once. Watch port 53 while a request runs and you will know for certain, for your client and your version, in ten seconds.</p></div>
+<h2 id="ports-carry-a-habit-not-a-rule">Ports carry a habit, not a rule</h2>
+<p>You will see <code>8080</code>, <code>3128</code>, <code>8000</code> and <code>1080</code> most often. The last one is traditionally the other family. All of this is convention and none of it is enforced: a provider can put anything on any port.</p>
+<p>If you have a pair with no other information, try both ways and see which answers:</p>
+<pre><code>curl -x http://198.51.100.14:8080  -s -o /dev/null -w "http  %{http_code}\n" https://example.com
+curl -x socks5h://198.51.100.14:1080 -s -o /dev/null -w "socks %{http_code}\n" https://example.com</code></pre>
+<p>The wrong scheme against a live port often hangs instead of refusing, which reads like a network fault and is not one.</p>
+<h2 id="characters-that-break-the-line">Characters that break the line</h2>
+<p>Credentials go into a url, and a url has reserved characters. A password containing <code>@</code>, <code>:</code>, <code>/</code>, <code>#</code> or <code>?</code> will be parsed as structure rather than as your password.</p>
+<p>Percent-encode the two fields before assembling:</p>
+<pre><code>from urllib.parse import quote</code></pre>
+<p>u = quote("user", safe="") p = quote("pa:ss@word", safe="") line = f"http://{u}:{p}@198.51.100.14:8080" ```</p>
+<p>An <code>@</code> in a password is the classic. The parser reads everything before the last <code>@</code> as credentials, so the line still looks valid and simply points somewhere unintended.</p>
+<p>Two ways to avoid the problem entirely: ask the provider for credentials without punctuation, or pass user and password as separate arguments where the client supports it, which several do.</p>
+<h2 id="where-the-line-should-live">Where the line should live</h2>
+<p>Not in your source, and not in a file that gets committed.</p>
+<pre><code># settings.ini, listed in .gitignore
+[hop]
+host = 198.51.100.14
+port = 8080
+user = whoever
+pass = whatever</code></pre>
+<p>Read it at startup, assemble the line in one place, and pass that one value around. When something needs changing there is a single edit, and the line never appears in a diff.</p>
+<p>If the credentials have already been committed at some point, treat them as public and change them. Rewriting repository history is slower than a password reset and less reliable.</p>
+<h2 id="two-ways-in-and-both-can-be-on-at-once">Two ways in, and both can be on at once</h2>
+<p>Providers usually offer either credentials or a bound address, and often both.</p>
+<p><strong>Credentials.</strong> You send a user and password with each connection. Works from anywhere, which is what you want when the machine you connect from changes.</p>
+<p><strong>Bound address.</strong> The provider records the address you connect from and accepts only that one. Nothing to put in the line at all, which is why a script that worked on a laptop returns a refusal the moment it runs on a server: the connection now arrives from somewhere the provider has not been told about.</p>
+<p>Most panels accept several bound addresses at once, so a laptop and a server can both be listed. Worth knowing that a package's thread limit is usually shared across them, so two entries do not double the capacity.</p><div class="pager"><a href="/start/what-goes-wrong-first/"><s>Previous</s>The four things that break before anything else</a><a class="rt" href="/python/requests/"><s>Next</s>requests</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-shape">The shape</a><a href="#the-scheme-is-not-the-target-s-scheme">The scheme is not the target's scheme</a><a href="#the-two-characters-that-move-name-resolution">The two characters that move name resolution</a><a href="#ports-carry-a-habit-not-a-rule">Ports carry a habit, not a rule</a><a href="#characters-that-break-the-line">Characters that break the line</a><a href="#where-the-line-should-live">Where the line should live</a><a href="#two-ways-in-and-both-can-be-on-at-once">Two ways in, and both can be on at once</a></aside>
+</div>
+<footer class="base"><div class="in2"><span>Wirebound</span>
+<a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>
+<span class="rt">38 pages</span></div></footer>
+<script>
+(function(){var K="wb-skin",d=document.documentElement,v=null;
+try{v=localStorage.getItem(K)}catch(e){}
+if(v)d.setAttribute("data-skin",v);
+var b=document.getElementById("sk");if(b)b.addEventListener("click",function(){
+var c=d.getAttribute("data-skin")==="day"?"night":"day";
+d.setAttribute("data-skin",c);try{localStorage.setItem(K,c)}catch(e){}});})();
+</script></body></html>

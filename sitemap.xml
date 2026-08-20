@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://unimasterz.github.io/</loc></url>
+  <url><loc>https://unimasterz.github.io/start/</loc></url>
+  <url><loc>https://unimasterz.github.io/python/</loc></url>
+  <url><loc>https://unimasterz.github.io/start/how-this-was-tested/</loc></url>
+  <url><loc>https://unimasterz.github.io/start/what-goes-wrong-first/</loc></url>
+  <url><loc>https://unimasterz.github.io/start/reading-a-connection-line/</loc></url>
+  <url><loc>https://unimasterz.github.io/python/requests/</loc></url>
+  <url><loc>https://unimasterz.github.io/python/httpx/</loc></url>
+  <url><loc>https://unimasterz.github.io/python/aiohttp/</loc></url>
+</urlset>

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 150" width="1140" height="150" role="img">
+<defs>
+<linearGradient id="pbFon" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#0d0e17"/><stop offset="0.45" stop-color="#1a1330"/>
+  <stop offset="0.8" stop-color="#2a1a55"/><stop offset="1" stop-color="#3b1f7a"/>
+</linearGradient>
+<linearGradient id="pbKnop" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#6d28d9"/>
+</linearGradient>
+<linearGradient id="pbKolco" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#7c3aed"/>
+</linearGradient>
+<radialGradient id="pbSvet" cx="0.5" cy="0.5" r="0.5">
+  <stop offset="0" stop-color="#8b5cf6" stop-opacity="0.5"/>
+  <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+</radialGradient></defs>
+<rect width="1140" height="150" rx="11" fill="url(#pbFon)"/>
+<ellipse cx="880" cy="40" rx="300" ry="150" fill="url(#pbSvet)"/>
+<g opacity=".16" stroke="#c4b5fd" stroke-width="1" fill="none">
+  <path d="M170 16 H430"/><path d="M170 128 H290 L322 88 H430"/>
+  <path d="M1140 30 H980 L950 62 H880"/><path d="M1140 122 H1000 L968 90 H880"/></g>
+<circle cx="392" cy="16" r="3" fill="#c4b5fd">
+  <animate attributeName="opacity" values="1;.25;1" dur="2s" repeatCount="indefinite" begin="0s"/></circle><circle cx="322" cy="88" r="3" fill="#c4b5fd">
+  <animate attributeName="opacity" values="1;.25;1" dur="2.4s" repeatCount="indefinite" begin="0.3s"/></circle><circle cx="950" cy="62" r="3" fill="#c4b5fd">
+  <animate attributeName="opacity" values="1;.25;1" dur="2.8s" repeatCount="indefinite" begin="0.6s"/></circle><circle cx="968" cy="90" r="3" fill="#c4b5fd">
+  <animate attributeName="opacity" values="1;.25;1" dur="3.2s" repeatCount="indefinite" begin="0.8999999999999999s"/></circle>
+<g>
+  <circle cx="84" cy="75" r="44" fill="none" stroke="#ffffff" stroke-opacity=".10" stroke-width="9"/>
+  <circle cx="84" cy="75" r="44" fill="none" stroke="url(#pbKolco)" stroke-width="9"
+    stroke-linecap="round" stroke-dasharray="276.46015351590177" stroke-dashoffset="60.82123377349839"
+    transform="rotate(-90 84 75)">
+    <animate attributeName="stroke-dashoffset" from="276.46015351590177" to="60.82123377349839" dur="1.4s" fill="freeze"/>
+  </circle>
+  <text x="84" y="77" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="25"
+    font-weight="800" fill="#ffffff" text-anchor="middle">12k</text>
+  <text x="84" y="96" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="10.5"
+    fill="#b9a8f5" text-anchor="middle" letter-spacing="1.1">IN POOL</text></g>
+<g>
+  <rect x="176" y="26" width="30" height="30" rx="8.4" fill="#ffffff"/>
+  <text x="191" y="47.3" font-family="Georgia,serif" font-size="13.5"
+    font-weight="700" fill="#3b1f7a" text-anchor="middle">IP</text></g>
+<text x="214" y="48" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" letter-spacing="-.3"><tspan font-weight="800" fill="#ffffff">IPrazon</tspan><tspan font-weight="500" fill="#c4b5fd" dx="7">Network</tspan></text>
+<text x="176" y="82" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19.5" font-weight="700" fill="#ffffff">Private datacenter IPv4 and SOCKS5</text>
+<g>
+  <rect x="176" y="98" width="152" height="26" rx="7" fill="#ffffff" fill-opacity=".07"
+    stroke="#a78bfa" stroke-opacity=".35"/>
+  <text x="252" y="115.2" font-family="Inter,Segoe UI,Arial,sans-serif"
+    font-size="12" font-weight="600" fill="#d6cbfb" text-anchor="middle">unmetered traffic</text></g>
+<g>
+  <rect x="336" y="98" width="138" height="26" rx="7" fill="#ffffff" fill-opacity=".07"
+    stroke="#a78bfa" stroke-opacity=".35"/>
+  <text x="405" y="115.2" font-family="Inter,Segoe UI,Arial,sans-serif"
+    font-size="12" font-weight="600" fill="#d6cbfb" text-anchor="middle">up to 3000 threads</text></g>
+<g>
+  <rect x="482" y="98" width="168" height="26" rx="7" fill="#ffffff" fill-opacity=".07"
+    stroke="#a78bfa" stroke-opacity=".35"/>
+  <text x="566" y="115.2" font-family="Inter,Segoe UI,Arial,sans-serif"
+    font-size="12" font-weight="600" fill="#d6cbfb" text-anchor="middle">HTTP, HTTPS, SOCKS</text></g>
+<g>
+  <rect x="806" y="50" width="300" height="50" rx="10" fill="url(#pbKnop)"/>
+  <rect x="806" y="50" width="300" height="50" rx="10" fill="none" stroke="#ddd6fe" stroke-opacity=".55"/>
+  <text x="941" y="80.6" font-family="Inter,Segoe UI,Arial,sans-serif"
+    font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">Start a free trial</text>
+  <g fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1066 75 h14 M1076 70 l5 5 l-5 5">
+      <animateTransform attributeName="transform" type="translate" values="0 0;5 0;0 0" dur="1.6s" repeatCount="indefinite"/>
+    </path></g></g>
+<text x="956" y="120" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="12" fill="#a695e8" text-anchor="middle">two hours, no card needed</text>
+</svg>

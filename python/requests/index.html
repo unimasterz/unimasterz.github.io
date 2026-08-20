@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>requests: session scope, env override, and the https key trap | Wirebound</title>
+<meta name="description" content="How requests resolves the proxy setting: session scope versus per call, the environment variables that override your code, the https key that everyone fills in wrongly, and where name resolution happens.">
+<link rel="canonical" href="https://unimasterz.github.io/python/requests/">
+<meta property="og:title" content="requests: session scope, env override, and the https key trap | Wirebound">
+<meta property="og:description" content="How requests resolves the proxy setting: session scope versus per call, the environment variables that override your code, the https key that everyone fills in wrongly, and where name resolution happens.">
+<meta property="og:url" content="https://unimasterz.github.io/python/requests/">
+<meta property="og:site_name" content="Wirebound">
+<meta name="color-scheme" content="light dark">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"requests: session scope, env override, and the https key trap","description":"How requests resolves the proxy setting: session scope versus per call, the environment variables that override your code, the https key that everyone fills in wrongly, and where name resolution happens.","url":"https://unimasterz.github.io/python/requests/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+--sheet:#ffffff;--page:#f4f6f9;--sunk:#eaeef4;
+--ink:#16181d;--ink2:#4a515e;--faint:#79818f;
+--edge:#dbe1ea;--edge2:#eef1f6;
+--mark:#a3182b;--mark2:#c8395079;--warn:#8a5a04;--warnbg:#fdf6e6;--warnedge:#eddcae;
+--code:#f5f7fa;--codeedge:#e3e8f0;
+--rad:5px;
+--sans:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+--mono:"Cascadia Mono",Consolas,"DejaVu Sans Mono",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-skin="day"]){
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}}
+:root[data-skin="night"]{
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);
+font:400 15.5px/1.62 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--mark);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--mark);outline-offset:2px;border-radius:3px}
+
+/* шапка */
+.hdr{background:var(--sheet);border-bottom:1px solid var(--edge);position:sticky;top:0;z-index:20}
+.hdr .in2{max-width:1360px;margin:0 auto;padding:0 22px;height:54px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:16.5px;color:var(--ink);letter-spacing:-.2px}
+.brand em{font-style:normal;font-weight:400;font-size:12px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
+.hnav{display:flex;gap:3px;margin-left:auto}
+.hnav a{padding:6px 11px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;font-weight:500}
+.hnav a:hover{background:var(--sunk);text-decoration:none;color:var(--ink)}
+.hnav a[aria-current]{color:var(--mark);background:var(--sunk)}
+.skin{border:1px solid var(--edge);background:transparent;color:var(--ink2);
+border-radius:var(--rad);padding:5px 10px;font:500 12.5px var(--sans);cursor:pointer}
+.skin:hover{background:var(--sunk)}
+
+/* каркас */
+.wrap{max-width:1360px;margin:0 auto;padding:26px 22px 60px;display:grid;
+grid-template-columns:250px minmax(0,1fr) 196px;gap:34px;align-items:start}
+.side{position:sticky;top:78px;max-height:calc(100vh - 100px);overflow:auto;padding-right:6px}
+.side h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.side ol{list-style:none;margin:0 0 18px;padding:0}
+.side li{margin:0}
+.side li a{display:block;padding:4px 9px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;
+border-left:2px solid transparent}
+.side li a:hover{background:var(--sunk);color:var(--ink);text-decoration:none}
+.side li a[aria-current]{color:var(--mark);border-left-color:var(--mark);background:var(--sunk);font-weight:600}
+
+.doc{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:34px 40px 42px;min-width:0}
+.crumb{font-size:12.5px;color:var(--faint);margin:0 0 12px}
+.crumb a{color:var(--faint)}
+.doc h1{margin:0 0 10px;font-size:29px;line-height:1.22;font-weight:750;letter-spacing:-.5px;text-wrap:balance}
+.doc h2{margin:36px 0 12px;font-size:20px;font-weight:700;letter-spacing:-.2px;
+padding-bottom:7px;border-bottom:1px solid var(--edge2);scroll-margin-top:74px}
+.doc h3{margin:26px 0 8px;font-size:16px;font-weight:700;scroll-margin-top:74px}
+.doc p{margin:0 0 15px;max-width:73ch}
+.doc ul,.doc ol{margin:0 0 15px;padding-left:22px;max-width:71ch}
+.doc li{margin:0 0 6px}
+.stand{font-size:16.5px;color:var(--ink2);margin:0 0 24px;max-width:66ch;line-height:1.6}
+
+/* таблица-справка */
+.tbl{width:100%;border-collapse:collapse;margin:0 0 20px;font-size:13.8px;display:table}
+.tblwrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--edge);border-radius:8px}
+.tblwrap .tbl{margin:0;border:0}
+.tbl th{text-align:left;padding:9px 13px;background:var(--sunk);font-weight:700;font-size:12px;
+letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--edge)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--edge2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{white-space:nowrap;font-family:var(--mono);font-size:12.8px;color:var(--ink)}
+.tbl .yes{color:var(--mark);font-weight:700}
+.tbl .no{color:var(--faint)}
+
+/* код */
+pre{margin:0 0 18px;background:var(--code);border:1px solid var(--codeedge);border-radius:8px;
+padding:14px 16px;overflow-x:auto;font:13.2px/1.55 var(--mono)}
+code{font-family:var(--mono);font-size:.905em}
+p code,li code,td code{background:var(--code);border:1px solid var(--codeedge);
+border-radius:4px;padding:1px 5px}
+
+/* врезки */
+.warn,.tip{border:1px solid var(--warnedge);background:var(--warnbg);border-radius:8px;
+padding:13px 16px;margin:0 0 18px;font-size:14.4px}
+.warn b,.tip b{display:block;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--warn);margin-bottom:4px}
+.tip{border-color:var(--edge);background:var(--sunk)}
+.tip b{color:var(--faint)}
+.warn p:last-child,.tip p:last-child{margin-bottom:0}
+
+/* правая полоса */
+.strip{position:sticky;top:78px;font-size:13px}
+.strip h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.strip a{display:block;padding:3px 0 3px 10px;color:var(--ink2);border-left:2px solid var(--edge)}
+.strip a:hover{color:var(--mark);border-left-color:var(--mark2);text-decoration:none}
+
+/* низ статьи */
+.pager{display:flex;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--edge2)}
+.pager a{flex:1;border:1px solid var(--edge);border-radius:8px;padding:11px 14px;color:var(--ink)}
+.pager a:hover{border-color:var(--mark);text-decoration:none}
+.pager s{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--faint);text-decoration:none;margin-bottom:3px}
+.pager .rt{text-align:right}
+
+/* главная */
+.hero{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:38px 40px;margin:0 0 24px}
+.hero h1{margin:0 0 12px;font-size:34px;line-height:1.18;font-weight:750;letter-spacing:-.7px;max-width:19ch}
+.hero p{margin:0 0 8px;font-size:17px;color:var(--ink2);max-width:64ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px}
+.slab{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:19px 21px}
+.slab h3{margin:0 0 4px;font-size:15.5px;font-weight:700}
+.slab h3 a{color:var(--ink)}
+.slab h3 a:hover{color:var(--mark);text-decoration:none}
+.slab p{margin:0 0 11px;font-size:13.6px;color:var(--faint)}
+.slab ul{list-style:none;margin:0;padding:0;font-size:13.8px}
+.slab li{margin:0 0 4px;padding-left:13px;position:relative}
+.slab li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--edge)}
+
+/* рекламное место, ровно одно на страницу */
+.promo{margin:0 0 24px}
+.promo span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+color:var(--faint);margin-bottom:5px}
+.promo img{display:block;width:100%;height:auto;border-radius:9px;border:1px solid var(--edge)}
+
+.base{border-top:1px solid var(--edge);background:var(--sheet);margin-top:auto}
+.base .in2{max-width:1360px;margin:0 auto;padding:20px 22px;display:flex;gap:16px;
+align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
+.base a{color:var(--ink2)}
+.base .rt{margin-left:auto}
+
+@media (max-width:1160px){
+.wrap{grid-template-columns:230px minmax(0,1fr);gap:26px}
+.strip{display:none}}
+@media (max-width:860px){
+.wrap{grid-template-columns:1fr;padding:18px 15px 46px}
+.side{position:static;max-height:none;border-bottom:1px solid var(--edge);padding-bottom:14px}
+.doc{padding:24px 20px 30px}
+.doc h1{font-size:25px}
+.hero{padding:26px 22px}
+.hero h1{font-size:27px}
+.hdr .in2{padding:0 15px;gap:12px}
+.hnav a{padding:6px 8px;font-size:13px}}
+</style></head><body>
+<header class="hdr"><div class="in2">
+<a class="brand" href="/">Wirebound <em>client reference</em></a>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/" aria-current="true">Python</a></nav>
+<button class="skin" type="button" id="sk">theme</button>
+</div></header>
+<div class="wrap">
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/" aria-current="page">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/python/">Python</a></p><h1>requests: session scope, env override, and the https key trap</h1><p class="stand">The most used client in this list, and the one with the most surprising precedence rules. Tested against requests 2.32 on Python 3.11.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: private datacenter IPv4 and SOCKS5, unmetered traffic, free two hour trial" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for requests</th></tr></thead><tbody><tr><td>Where the setting goes</td><td>a dict on the session, or per call</td></tr><tr><td>Environment override</td><td>yes, and it wins over the session dict</td></tr><tr><td>Who resolves the name</td><td>your machine for <code>http</code>, the far end for <code>socks5h</code></td></tr><tr><td>Certificates</td><td>verified against the real target, tunnel is transparent</td></tr><tr><td>The trap</td><td>the <code>https</code> key takes an <code>http://</code> value</td></tr></tbody></table></div>
+<h2 id="where-the-setting-goes">Where the setting goes</h2>
+<p>Three scopes, and they behave differently.</p>
+<pre><code>import requests</code></pre>
+<p># per call: explicit, never surprises anyone reading the code r = requests.get(url, proxies=P, timeout=(5, 20))</p>
+<p># per session: what most jobs want s = requests.Session() s.proxies = P r = s.get(url, timeout=(5, 20)) ```</p>
+<p>The session version is what you want for anything that makes more than a handful of calls, because it also keeps the connection open between them.</p>
+<div class="warn"><b>Anything not using the session goes direct</b><p>A stray <code>requests.get(...)</code> anywhere in the file bypasses the session entirely. These hide in error handlers and in retry code, which is exactly where you least want a direct connection. Search the project for <code>requests.get</code> and <code>requests.post</code> before you trust a run.</p></div>
+<h2 id="the-https-key-trap">The https key trap</h2>
+<p>The dict is keyed by the <strong>scheme of the site you are visiting</strong>. The value describes <strong>how you reach the hop</strong>. Those are different things, and both values are usually <code>http://</code>.</p>
+<pre><code>P = {
+    "http":  "http://user:pass@198.51.100.14:8080",
+    "https": "http://user:pass@198.51.100.14:8080",
+}</code></pre>
+<p>Putting <code>https://</code> in the second slot tells requests to speak TLS to the hop itself. Unless your provider explicitly offers that, the connection fails or hangs, and the error message points nowhere useful.</p>
+<h2 id="environment-variables-beat-your-code">Environment variables beat your code</h2>
+<p>This is the part that costs people afternoons. If <code>trust_env</code> is left at its default, requests reads the environment and <strong>the environment wins over the session dict</strong>.</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Source</th><th>Beats</th></tr></thead><tbody><tr><td>per call <code>proxies=</code> argument</td><td>everything</td></tr><tr><td>environment variables</td><td>the session dict</td></tr><tr><td>session <code>.proxies</code> dict</td><td>nothing above it</td></tr></tbody></table></div>
+<p>So a session you carefully configured is silently overridden by a variable somebody set in the shell profile, in a Dockerfile, or in a systemd unit two years ago.</p>
+<p>To take the environment out of the picture:</p>
+<pre><code>s = requests.Session()
+s.trust_env = False
+s.proxies = P</code></pre>
+<p>To find out whether it is affecting you right now:</p>
+<pre><code>import os
+print({k: v for k, v in os.environ.items() if "proxy" in k.lower()})</code></pre>
+<p>Both upper and lower case spellings are read. On most platforms the lower case form wins when both exist, which is a detail that matters when two different tools set two different values.</p>
+<h2 id="who-resolves-the-name">Who resolves the name</h2>
+<p>For the <code>http</code> scheme, your machine resolves the hostname and requests connects through the hop to the resulting address.</p>
+<p>For the other family, the spelling decides:</p>
+<pre><code>pip install "requests[socks]"</code></pre>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Value</th><th>Resolution</th></tr></thead><tbody><tr><td><code>socks5://host:1080</code></td><td>local</td></tr><tr><td><code>socks5h://host:1080</code></td><td>at the far end</td></tr></tbody></table></div>
+<p>Most people who reach for this want the second and type the first. Confirm with probe two rather than trusting the documentation, including this page.</p>
+<h2 id="credentials-with-awkward-characters">Credentials with awkward characters</h2>
+<p>An <code>@</code> or <code>:</code> in a password breaks the url before requests ever sees it as credentials.</p>
+<pre><code>from urllib.parse import quote
+p = quote(raw_password, safe="")
+line = f"http://{quote(user, safe='')}:{p}@198.51.100.14:8080"</code></pre>
+<p>There is no separate argument for credentials in requests, so encoding is the only route.</p>
+<h2 id="timeouts">Timeouts</h2>
+<p>A bare number sets both phases to the same value. A tuple sets them separately, which is what you want.</p>
+<pre><code>r = s.get(url, timeout=(5, 20))   # 5s to connect, 20s between chunks</code></pre>
+<p>Neither form bounds the total call. The read clock resets on every chunk, so a slow trickle holds the call open indefinitely. For anything unattended, add a ceiling above the library.</p>
+<h2 id="retries-at-the-right-layer">Retries at the right layer</h2>
+<p>Retrying with a loop around <code>s.get</code> re-runs your code. Mounting a retry policy handles it inside the connection pool, which is generally better behaved:</p>
+<pre><code>from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry</code></pre>
+<p>r = Retry(total=4, backoff_factor=0.6,           status_forcelist=[429, 500, 502, 503, 504],           allowed_methods=["GET", "HEAD"]) s.mount("https://", HTTPAdapter(max_retries=r, pool_maxsize=20)) s.mount("http://",  HTTPAdapter(max_retries=r, pool_maxsize=20)) ```</p>
+<p><code>backoff_factor</code> gives you growing gaps. It does not add randomness, so if many workers fail at the same moment they retry in unison. Add your own jitter if you run more than a few.</p>
+<p>Note that <code>pool_maxsize</code> matters once you go parallel: the default is small, and threads beyond it queue for a connection rather than opening one.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<p>Two lines at startup, and a run that refuses to continue when it is wrong:</p>
+<pre><code>seen = s.get("https://api.ipify.org", timeout=15).text.strip()
+print("requests is going out through:", seen)</code></pre>
+<p>Run it once with the session and once without. Two different answers means the setting applied.</p><div class="pager"><a href="/start/reading-a-connection-line/"><s>Previous</s>Anatomy of the line your provider hands you</a><a class="rt" href="/python/httpx/"><s>Next</s>httpx</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#where-the-setting-goes">Where the setting goes</a><a href="#the-https-key-trap">The https key trap</a><a href="#environment-variables-beat-your-code">Environment variables beat your code</a><a href="#who-resolves-the-name">Who resolves the name</a><a href="#credentials-with-awkward-characters">Credentials with awkward characters</a><a href="#timeouts">Timeouts</a><a href="#retries-at-the-right-layer">Retries at the right layer</a><a href="#confirming-it-works">Confirming it works</a></aside>
+</div>
+<footer class="base"><div class="in2"><span>Wirebound</span>
+<a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>
+<span class="rt">38 pages</span></div></footer>
+<script>
+(function(){var K="wb-skin",d=document.documentElement,v=null;
+try{v=localStorage.getItem(K)}catch(e){}
+if(v)d.setAttribute("data-skin",v);
+var b=document.getElementById("sk");if(b)b.addEventListener("click",function(){
+var c=d.getAttribute("data-skin")==="day"?"night":"day";
+d.setAttribute("data-skin",c);try{localStorage.setItem(K,c)}catch(e){}});})();
+</script></body></html>
