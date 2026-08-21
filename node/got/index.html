@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wirebound: how each client actually handles a proxy</title>
-<meta name="description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<link rel="canonical" href="https://unimasterz.github.io/">
-<meta property="og:title" content="Wirebound: how each client actually handles a proxy">
-<meta property="og:description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<meta property="og:url" content="https://unimasterz.github.io/">
+<title>got: agents per protocol | Wirebound</title>
+<meta name="description" content="got takes agents per protocol under a single `agent` object, has real retry and hooks built in, and reads nothing from the environment.">
+<link rel="canonical" href="https://unimasterz.github.io/node/got/">
+<meta property="og:title" content="got: agents per protocol | Wirebound">
+<meta property="og:description" content="got takes agents per protocol under a single `agent` object, has real retry and hooks built in, and reads nothing from the environment.">
+<meta property="og:url" content="https://unimasterz.github.io/node/got/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/","inLanguage":"en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"got: agents per protocol","description":"got takes agents per protocol under a single `agent` object, has real retry and hooks built in, and reads nothing from the environment.","url":"https://unimasterz.github.io/node/got/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,12 +164,71 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<div><div class="hero"><h1>How each client actually handles a proxy</h1><p>One page per library, runtime and tool. Where the setting lives, whether an environment variable overrides it, which side resolves the hostname, what happens to certificate checking, and the trap that costs people an afternoon.</p><p>Every entry was run before it was written down. The command that proves it is on the page.</p></div><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><div class="grid"><article class="slab"><h3><a href="/start/">Before the tables</a></h3><p>What is measured on every page and how to repeat it</p><ul><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ul></article><article class="slab"><h3><a href="/python/">Python</a></h3><p>Six clients, six different answers to the same question</p><ul><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ul></article><article class="slab"><h3><a href="/node/">Node.js</a></h3><p>Global fetch changed the answers that older guides give</p><ul><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ul></article></div></div>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/" aria-current="page">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>got: agents per protocol</h1><p class="stand">The most complete of the Node clients for unattended work: proper retries, hooks, and a timeout object with a genuine total. The setting goes in an unusual place. Tested against got 14.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for got</th></tr></thead><tbody><tr><td>Where the setting goes</td><td><code>agent: { http, https }</code></td></tr><tr><td>Environment override</td><td class="no">no</td></tr><tr><td>Who resolves the name</td><td>your machine</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td>one agent key is not enough, you need both</td></tr></tbody></table></div>
+<h2 id="the-setting">The setting</h2>
+<pre><code>import got from "got";
+import { HttpProxyAgent } from "http-proxy-agent";
+import { HttpsProxyAgent } from "https-proxy-agent";</code></pre>
+<p>const line = "http://user:pass@198.51.100.14:8080";</p>
+<p>const client = got.extend({   agent: {     http:  new HttpProxyAgent(line),     https: new HttpsProxyAgent(line),   },   timeout: { request: 30_000, connect: 5_000, response: 20_000 },   retry: { limit: 3 }, }); ```</p>
+<p>The <code>agent</code> object is keyed by the protocol of the <strong>target</strong>, and both values point at the same hop. Same shape as the Python dict, same reason people fill it in wrongly.</p>
+<p>Supplying only <code>https</code> is the usual mistake. It works until a redirect sends you to a plain http url, which then goes direct.</p>
+<h2 id="timeouts-with-a-real-total">Timeouts, with a real total</h2>
+<pre><code>timeout: {
+  lookup: 2_000,     // резолв имени
+  connect: 5_000,    // до соединения
+  secureConnect: 5_000,  // рукопожатие
+  socket: 10_000,    // тишина в сокете
+  response: 20_000,  // до первого байта
+  request: 45_000,   // весь вызов целиком
+}</code></pre>
+<p><code>request</code> is a genuine ceiling on the whole call including retries, which almost nothing else in this reference offers without extra machinery. If you set one value, set that one.</p>
+<h2 id="retries-that-are-actually-configurable">Retries that are actually configurable</h2>
+<pre><code>retry: {
+  limit: 3,
+  methods: ["GET", "HEAD"],
+  statusCodes: [408, 413, 429, 500, 502, 503, 504],
+  errorCodes: ["ETIMEDOUT", "ECONNRESET", "ECONNREFUSED", "EPIPE"],
+  calculateDelay: ({ attemptCount, error }) =&gt; {
+    if (attemptCount &gt; 3) return 0;
+    const posle = Number(error?.response?.headers?.["retry-after"]);
+    if (posle) return Math.min(posle * 1000, 900_000);
+    return (2 ** attemptCount) * 300 + Math.random() * 300;
+  },
+}</code></pre>
+<p><code>calculateDelay</code> returning zero stops the retries. Note the two things this does that most defaults do not: it honours the server's own <code>retry-after</code>, and it adds randomness so parallel workers do not retry in unison.</p>
+<h2 id="hooks-and-why-they-matter-here">Hooks, and why they matter here</h2>
+<pre><code>hooks: {
+  beforeRequest: [(opt) =&gt; { opt.headers["x-run"] = RUN_ID; }],
+  beforeRetry: [(err, count) =&gt; {
+    console.warn(`повтор ${count}: ${err.code ?? err.response?.statusCode}`);
+  }],
+  beforeError: [(err) =&gt; {
+    err.message = `${err.message} [${err.options?.url?.host}]`;
+    return err;
+  }],
+}</code></pre>
+<p><code>beforeRetry</code> is the one worth wiring up on day one. Without it, retries are invisible and a job that quietly retries a third of its requests looks identical to one that does not.</p>
+<h2 id="rotating">Rotating</h2>
+<p>Because the agent lives in options, a per-request route is a per-request agent:</p>
+<pre><code>await client.get(url, {
+  agent: { http: agents[i].http, https: agents[i].https },
+});</code></pre>
+<p>Build the agents once into an array and index into it. Creating agents per request throws away the connection pool and costs you the reuse you were trying to get.</p>
+<h2 id="bypass">Bypass</h2>
+<p>No bypass list. Route in your own code by choosing which extended client to call, which is the same explicit approach undici forces and is easier to reason about than a matching string.</p>
+<pre><code>const cherez = got.extend({ agent: { http: a, https: b } });
+const pryamo = got.extend({});</code></pre>
+<p>const vybrat = (u) =&gt; u.includes(".internal") ? pryamo : cherez; await vybrat(url).get(url); ```</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>console.log("got выходит через", (await client("https://api.ipify.org")).body.trim());</code></pre>
+<p>Test both protocols separately. The single-key mistake is common enough that it is worth two lines rather than one.</p><div class="pager"><a href="/node/axios/"><s>Previous</s>axios</a><a class="rt" href="/node/node-fetch/"><s>Next</s>node-fetch</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-setting">The setting</a><a href="#timeouts-with-a-real-total">Timeouts, with a real total</a><a href="#retries-that-are-actually-configurable">Retries that are actually configurable</a><a href="#hooks-and-why-they-matter-here">Hooks, and why they matter here</a><a href="#rotating">Rotating</a><a href="#bypass">Bypass</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

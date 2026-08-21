@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>aiohttp: why per-request beats per-session here | Wirebound</title>
-<meta name="description" content="aiohttp puts the proxy on the request rather than the session, ignores the environment unless you ask, and needs a separate package for the other scheme family. The details that make concurrent runs behave.">
-<link rel="canonical" href="https://unimasterz.github.io/python/aiohttp/">
-<meta property="og:title" content="aiohttp: why per-request beats per-session here | Wirebound">
-<meta property="og:description" content="aiohttp puts the proxy on the request rather than the session, ignores the environment unless you ask, and needs a separate package for the other scheme family. The details that make concurrent runs behave.">
-<meta property="og:url" content="https://unimasterz.github.io/python/aiohttp/">
+<title>Selenium and Playwright from Python: two different setting paths | Wirebound</title>
+<meta name="description" content="Selenium passes the setting to the browser as a launch flag, Playwright takes it as an argument and can override it per context. Two different paths, two different sets of limitations.">
+<link rel="canonical" href="https://unimasterz.github.io/python/selenium-playwright-python/">
+<meta property="og:title" content="Selenium and Playwright from Python: two different setting paths | Wirebound">
+<meta property="og:description" content="Selenium passes the setting to the browser as a launch flag, Playwright takes it as an argument and can override it per context. Two different paths, two different sets of limitations.">
+<meta property="og:url" content="https://unimasterz.github.io/python/selenium-playwright-python/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"aiohttp: why per-request beats per-session here","description":"aiohttp puts the proxy on the request rather than the session, ignores the environment unless you ask, and needs a separate package for the other scheme family. The details that make concurrent runs behave.","url":"https://unimasterz.github.io/python/aiohttp/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Selenium and Playwright from Python: two different setting paths","description":"Selenium passes the setting to the browser as a launch flag, Playwright takes it as an argument and can override it per context. Two different paths, two different sets of limitations.","url":"https://unimasterz.github.io/python/selenium-playwright-python/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -168,63 +168,55 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/" aria-current="page">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/python/">Python</a></p><h1>aiohttp: why per-request beats per-session here</h1><p class="stand">The one client here where per-request is the normal way and session level is the exception. That inversion catches everyone arriving from requests. Tested against aiohttp 3.9 on Python 3.11.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: private datacenter IPv4, unmetered traffic, two hour trial" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
-<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for aiohttp</th></tr></thead><tbody><tr><td>Where the setting goes</td><td>on each request, or via a connector</td></tr><tr><td>Environment override</td><td>no, unless you pass <code>trust_env=True</code></td></tr><tr><td>Who resolves the name</td><td>your machine for <code>http</code></td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td><code>session = ClientSession(proxy=...)</code> is not a thing</td></tr></tbody></table></div>
-<h2 id="per-request-not-per-session">Per request, not per session</h2>
-<pre><code>import aiohttp, asyncio</code></pre>
-<p>PROXY = "http://user:pass@198.51.100.14:8080"</p>
-<p>async def main():     timeout = aiohttp.ClientTimeout(total=45, connect=5, sock_read=20)     async with aiohttp.ClientSession(timeout=timeout) as s:         async with s.get("https://example.com", proxy=PROXY) as r:             body = await r.text() ```</p>
-<p><code>ClientSession</code> has no <code>proxy</code> argument. People write it anyway, get a <code>TypeError</code>, and go looking for the right keyword. There isn't one at that level.</p>
-<div class="tip"><b>Wrap the call instead of repeating yourself</b><p>Passing <code>proxy=</code> at forty call sites is how one of them ends up missing it. Write one small helper that every call goes through, and the setting exists in exactly one place.</p></div>
-<pre><code>async def fetch(s, url, **kw):
-    return await s.get(url, proxy=PROXY, **kw)</code></pre>
-<h2 id="the-environment-is-ignored-by-default">The environment is ignored by default</h2>
-<p>Unusual among the clients here, and worth knowing in both directions.</p>
-<pre><code>s = aiohttp.ClientSession(trust_env=True)</code></pre>
-<p>With <code>trust_env=True</code> the standard variables are read and applied, and <code>.netrc</code> is consulted for credentials. Without it, aiohttp does exactly what your code says and nothing else.</p>
-<p>For a scheduled job this default is a feature: nothing a shell profile does can change how your run behaves.</p>
-<h2 id="credentials">Credentials</h2>
-<p>Two ways, and the second avoids the encoding problem entirely.</p>
-<pre><code># in the url
-proxy = "http://user:pass@198.51.100.14:8080"</code></pre>
-<p># as a separate object, no percent-encoding needed auth = aiohttp.BasicAuth("user", "pa:ss@word") await s.get(url, proxy="http://198.51.100.14:8080", proxy_auth=auth) ```</p>
-<p>The second form is the better habit. A password with punctuation in it never touches url parsing.</p>
-<h2 id="concurrency-limits-live-on-the-connector">Concurrency limits live on the connector</h2>
-<p>This is the setting that decides whether your run is fast or merely busy.</p>
-<pre><code>conn = aiohttp.TCPConnector(
-    limit=30,            # total simultaneous connections
-    limit_per_host=8,    # per target host
-    ttl_dns_cache=300,   # seconds to remember a lookup
-)
-async with aiohttp.ClientSession(connector=conn, timeout=timeout) as s:
-    ...</code></pre>
-<p>The default <code>limit</code> is 100 and <code>limit_per_host</code> is 0, meaning unlimited per host. Firing a few hundred coroutines at one host with the defaults is how people discover the reset failure described in the traps section.</p>
-<p>Set <code>limit_per_host</code> deliberately. Start low, watch the failure rate, walk it up.</p>
-<h2 id="timeouts">Timeouts</h2>
-<pre><code>aiohttp.ClientTimeout(
-    total=45,        # the whole call, and this one actually exists here
-    connect=5,       # getting a connection, including from the pool
-    sock_connect=5,  # the socket connect itself
-    sock_read=20,    # between chunks
-)</code></pre>
-<p>aiohttp is one of the few clients in this reference with a real <code>total</code>. Use it. It is the ceiling that other libraries make you build yourself.</p>
-<h2 id="the-other-family">The other family</h2>
-<pre><code>pip install aiohttp_socks</code></pre>
-<pre><code>from aiohttp_socks import ProxyConnector</code></pre>
-<p>conn = ProxyConnector.from_url("socks5://user:pass@198.51.100.14:1080", limit=30) async with aiohttp.ClientSession(connector=conn) as s:     ... ```</p>
-<p>Note this moves the setting from the request to the connector, so with this package the session-level form does exist and the <code>proxy=</code> argument is no longer used. Two different mechanisms depending on which scheme family you are on, which is worth a comment in your code so the next reader is not confused.</p>
-<p>The <code>socks5h</code> spelling is accepted by <code>aiohttp_socks</code> and does move resolution to the far end. Confirm with probe two.</p>
-<h2 id="cleaning-up">Cleaning up</h2>
-<p>An unclosed session prints a warning at interpreter exit and leaks connections while running. Always use the context manager, and if you keep a session on an object, close it explicitly:</p>
-<pre><code>await session.close()
-await asyncio.sleep(0)   # let the transports finish closing</code></pre>
-<p>The short sleep is the documented way to avoid the noisy shutdown warning on some platforms.</p>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/" aria-current="page">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/python/">Python</a></p><h1>Selenium and Playwright from Python: two different setting paths</h1><p class="stand">Both drive a real browser from Python and they disagree about where the setting belongs. The practical difference is whether you can have two identities in one process. Tested against Selenium 4.20 and Playwright 1.44.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: pools from a handful of addresses upward" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Selenium</th><th>Playwright</th></tr></thead><tbody><tr><td>Where the setting goes</td><td>browser launch flag</td><td>launch argument or per context</td></tr><tr><td>Environment override</td><td class="no">no</td><td class="no">no</td></tr><tr><td>Who resolves the name</td><td>the browser</td><td>the browser</td></tr><tr><td>Certificates</td><td>browser's own store</td><td>browser's own store</td></tr><tr><td>The trap</td><td>credentials are not accepted in the flag</td><td>context value replaces, it does not merge</td></tr></tbody></table></div>
+<h2 id="selenium">Selenium</h2>
+<pre><code>from selenium import webdriver</code></pre>
+<p>opts = webdriver.ChromeOptions() opts.add_argument("--proxy-server=http://198.51.100.14:8080") opts.add_argument("--proxy-bypass-list=&lt;-loopback&gt;") drv = webdriver.Chrome(options=opts) ```</p>
+<p>That is the whole mechanism, and it comes with one significant limitation.</p>
+<div class="warn"><b>Chrome does not accept credentials in that flag</b><p><code>--proxy-server=http://user:pass@host:port</code> does not authenticate. Chrome ignores the credentials and you get an authentication dialog that no automation can dismiss.</p></div>
+<p>The workarounds, in order of how much I would recommend them:</p>
+<p><strong>Use a bound address.</strong> Your machine is on the allowlist, nothing to authenticate, flag works as written. Simplest by a distance and it is why bound access exists.</p>
+<p><strong>Run a local relay.</strong> A small process listening on localhost that speaks to the hop with credentials. The browser points at localhost with no credentials at all. Robust, and it works identically for every browser and every tool on the machine.</p>
+<p><strong>Ship an extension.</strong> Chrome extensions can supply credentials programmatically. This works and it means building and loading an extension per identity, which is a lot of machinery for what a relay does with a config line.</p>
+<p>The bypass list is worth setting. <code>&lt;-loopback&gt;</code> means loopback traffic goes direct, which stops the driver's own communication with the browser going through the hop.</p>
+<h3 id="firefox-in-selenium">Firefox in Selenium</h3>
+<p>Firefox does accept a profile-level configuration and is less awkward here:</p>
+<pre><code>from selenium import webdriver
+opts = webdriver.FirefoxOptions()
+opts.set_preference("network.proxy.type", 1)
+opts.set_preference("network.proxy.http", "198.51.100.14")
+opts.set_preference("network.proxy.http_port", 8080)
+opts.set_preference("network.proxy.ssl", "198.51.100.14")
+opts.set_preference("network.proxy.ssl_port", 8080)
+opts.set_preference("network.proxy.socks_remote_dns", True)
+drv = webdriver.Firefox(options=opts)</code></pre>
+<p><code>socks_remote_dns</code> is the Firefox equivalent of the trailing <code>h</code>: it moves name resolution to the far end. If where lookups happen matters, this preference is the switch.</p>
+<h2 id="playwright">Playwright</h2>
+<p>Playwright handles credentials properly, which removes the whole relay question for most jobs.</p>
+<pre><code>from playwright.sync_api import sync_playwright</code></pre>
+<p>with sync_playwright() as p:     br = p.chromium.launch(proxy={         "server": "http://198.51.100.14:8080",         "username": "user",         "password": "pass",     })     page = br.new_page()     page.goto("https://example.com", timeout=30000) ```</p>
+<p>Note the shape: server without credentials, credentials as separate keys. No url encoding, no dialog.</p>
+<h3 id="per-context-which-is-the-real-advantage">Per context, which is the real advantage</h3>
+<pre><code>br = p.chromium.launch()          # без настройки
+ctx_a = br.new_context(proxy={"server": "http://a:8080"})
+ctx_b = br.new_context(proxy={"server": "http://b:8080"})</code></pre>
+<p>Two contexts in one browser process, two different routes, isolated storage. This is the thing Selenium cannot do without launching two browsers.</p>
+<p>Rules for how the two levels interact:</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Set at launch</th><th>Set on context</th><th>Result</th></tr></thead><tbody><tr><td class="yes">yes</td><td class="no">no</td><td>launch value used</td></tr><tr><td class="yes">yes</td><td class="yes">yes</td><td>context value used, entirely</td></tr><tr><td class="no">no</td><td class="yes">yes</td><td>context value used</td></tr><tr><td class="no">no</td><td class="no">no</td><td>direct</td></tr></tbody></table></div>
+<p>The context value replaces the launch value; it does not merge with it. A context that sets only <code>server</code> and omits credentials does not inherit the credentials from launch.</p>
+<div class="tip"><b>Launch with a placeholder if you plan to use per-context values</b><p>On some versions, a browser launched with no proxy at all will not accept a per-context proxy for every browser engine. Launching with <code>{"server": "http://per-context"}</code> as a placeholder avoids that surprise, and every context overrides it anyway.</p></div>
+<h2 id="bypass">Bypass</h2>
+<pre><code>br = p.chromium.launch(proxy={
+    "server": "http://198.51.100.14:8080",
+    "bypass": "localhost,127.0.0.1,*.internal",
+})</code></pre>
+<p>Comma separated, no spaces. This is the value Chrome would take in <code>--proxy-bypass-list</code>, so the same matching rules apply.</p>
 <h2 id="confirming-it-works">Confirming it works</h2>
-<pre><code>async with aiohttp.ClientSession() as s:
-    async with s.get("https://api.ipify.org", proxy=PROXY) as r:
-        print("aiohttp is going out through:", (await r.text()).strip())</code></pre>
-<p>Because the setting is per request here, check the helper you actually use rather than a fresh call written for the test. The whole point of the check is to catch the call that forgot the argument.</p><div class="pager"><a href="/python/httpx/"><s>Previous</s>httpx</a><a class="rt" href="/python/urllib3/"><s>Next</s>urllib3</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#per-request-not-per-session">Per request, not per session</a><a href="#the-environment-is-ignored-by-default">The environment is ignored by default</a><a href="#credentials">Credentials</a><a href="#concurrency-limits-live-on-the-connector">Concurrency limits live on the connector</a><a href="#timeouts">Timeouts</a><a href="#the-other-family">The other family</a><a href="#cleaning-up">Cleaning up</a><a href="#confirming-it-works">Confirming it works</a></aside>
+<pre><code>page.goto("https://api.ipify.org")
+print(page.inner_text("body").strip())</code></pre>
+<p>For Playwright with several contexts, check each context separately. A context that quietly fell back to direct looks identical to one that did not until you ask it.</p><div class="pager"><a href="/python/scrapy/"><s>Previous</s>Scrapy</a><a class="rt" href="/node/global-fetch-undici/"><s>Next</s>Global fetch and undici</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#selenium">Selenium</a><a href="#playwright">Playwright</a><a href="#bypass">Bypass</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

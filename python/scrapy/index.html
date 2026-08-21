@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wirebound: how each client actually handles a proxy</title>
-<meta name="description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<link rel="canonical" href="https://unimasterz.github.io/">
-<meta property="og:title" content="Wirebound: how each client actually handles a proxy">
-<meta property="og:description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<meta property="og:url" content="https://unimasterz.github.io/">
+<title>Scrapy: middleware order decides which address wins | Wirebound</title>
+<meta name="description" content="Scrapy sets the proxy through a request meta key handled by middleware, and the order of that middleware decides which value survives. Where to put it and what overrides what.">
+<link rel="canonical" href="https://unimasterz.github.io/python/scrapy/">
+<meta property="og:title" content="Scrapy: middleware order decides which address wins | Wirebound">
+<meta property="og:description" content="Scrapy sets the proxy through a request meta key handled by middleware, and the order of that middleware decides which value survives. Where to put it and what overrides what.">
+<meta property="og:url" content="https://unimasterz.github.io/python/scrapy/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/","inLanguage":"en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Scrapy: middleware order decides which address wins","description":"Scrapy sets the proxy through a request meta key handled by middleware, and the order of that middleware decides which value survives. Where to put it and what overrides what.","url":"https://unimasterz.github.io/python/scrapy/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,12 +164,67 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/" aria-current="true">Python</a><a href="/node/">Node.js</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<div><div class="hero"><h1>How each client actually handles a proxy</h1><p>One page per library, runtime and tool. Where the setting lives, whether an environment variable overrides it, which side resolves the hostname, what happens to certificate checking, and the trap that costs people an afternoon.</p><p>Every entry was run before it was written down. The command that proves it is on the page.</p></div><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><div class="grid"><article class="slab"><h3><a href="/start/">Before the tables</a></h3><p>What is measured on every page and how to repeat it</p><ul><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ul></article><article class="slab"><h3><a href="/python/">Python</a></h3><p>Six clients, six different answers to the same question</p><ul><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ul></article><article class="slab"><h3><a href="/node/">Node.js</a></h3><p>Global fetch changed the answers that older guides give</p><ul><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ul></article></div></div>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/" aria-current="page">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/python/">Python</a></p><h1>Scrapy: middleware order decides which address wins</h1><p class="stand">Scrapy is the one client here where the setting is a piece of request metadata, processed by a chain you can reorder. That makes it flexible and makes the precedence non-obvious. Tested against Scrapy 2.11.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for Scrapy</th></tr></thead><tbody><tr><td>Where the setting goes</td><td><code>request.meta["proxy"]</code>, usually set by middleware</td></tr><tr><td>Environment override</td><td>yes, <code>HttpProxyMiddleware</code> reads it when meta is absent</td></tr><tr><td>Who resolves the name</td><td>your machine, via Twisted</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td>middleware order decides which value wins</td></tr></tbody></table></div>
+<h2 id="the-mechanism">The mechanism</h2>
+<p>There is one key and everything else is machinery around it.</p>
+<pre><code>def start_requests(self):
+    yield scrapy.Request(
+        "https://example.com",
+        meta={"proxy": "http://198.51.100.14:8080"},
+    )</code></pre>
+<p><code>HttpProxyMiddleware</code> reads that key and applies it. If the key is absent, the same middleware falls back to the environment.</p>
+<p>Credentials do not go in the meta value in the usual url form. Scrapy expects them as a header, and the middleware builds it for you if you put them in the url once:</p>
+<pre><code># работает: middleware извлечёт и переложит в заголовок
+meta={"proxy": "http://user:pass@198.51.100.14:8080"}</code></pre>
+<p>After the first request the credentials are moved into <code>Proxy-Authorization</code> and stripped from the meta value. If you later copy that meta into a new request you lose the credentials, which is a surprising and well-known trap.</p>
+<div class="warn"><b>Copying meta between requests drops the credentials</b><p><code>response.request.meta</code> no longer contains the password after the middleware has run. If you build follow-up requests by copying meta, carry the original line from settings instead of from the previous request.</p></div>
+<h2 id="per-spider-not-per-project">Per spider, not per project</h2>
+<p>The clean pattern for most jobs: one middleware that sets the key, configured per spider.</p>
+<pre><code># middlewares.py
+class HopMiddleware:
+    def __init__(self, line):
+        self.line = line</code></pre>
+<p>@classmethod     def from_crawler(cls, crawler):         return cls(crawler.settings.get("HOP_LINE"))</p>
+<p>def process_request(self, request, spider):         if self.line and "proxy" not in request.meta:             request.meta["proxy"] = self.line ```</p>
+<pre><code># settings.py
+DOWNLOADER_MIDDLEWARES = {
+    "myproject.middlewares.HopMiddleware": 700,
+    "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 750,
+}</code></pre>
+<p>The numbers are the whole game. Lower runs first on the way out. Yours at 700 sets the key before the built-in at 750 reads it, which is what you want. Put yours after 750 and it sets a key nobody looks at.</p>
+<h2 id="precedence">Precedence</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Source</th><th>Beats</th></tr></thead><tbody><tr><td><code>meta["proxy"]</code> set on the request itself</td><td>everything</td></tr><tr><td>middleware that runs before 750</td><td>the environment</td></tr><tr><td>environment variables</td><td>nothing else present</td></tr></tbody></table></div>
+<h2 id="rotating-per-request">Rotating per request</h2>
+<p>Because it is a meta key, rotation is a line in your middleware:</p>
+<pre><code>def process_request(self, request, spider):
+    request.meta["proxy"] = self.next_line(request)</code></pre>
+<p>Two cautions.</p>
+<p>Rotating per request breaks anything with a session. If your spider logs in, pin the value for that chain of requests instead.</p>
+<p>Retries reuse the same request object, so a failed request retried keeps its old value unless you clear it. If you want a retry to go elsewhere, remove the key in your retry handling.</p>
+<h2 id="concurrency">Concurrency</h2>
+<pre><code>CONCURRENT_REQUESTS = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 8
+DOWNLOAD_DELAY = 0.25
+RANDOMIZE_DOWNLOAD_DELAY = True
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_TARGET_CONCURRENCY = 4.0</code></pre>
+<p><code>AUTOTHROTTLE_ENABLED</code> adjusts the delay from observed latency, which is the closest thing in any client here to reacting to the target instead of guessing at it. Worth turning on for anything unattended.</p>
+<p><code>RANDOMIZE_DOWNLOAD_DELAY</code> is on by default and multiplies the delay by a factor between 0.5 and 1.5. Leave it on.</p>
+<h2 id="timeouts">Timeouts</h2>
+<pre><code>DOWNLOAD_TIMEOUT = 30</code></pre>
+<p>One number, covering the whole download. Unusually, this one is a total, so Scrapy needs less wrapping than the plain clients do.</p>
+<h2 id="the-other-family">The other family</h2>
+<p>Not supported by the built-in middleware. Requires a third party downloader middleware or a local relay that speaks one scheme on the outside and the other on the inside.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>def parse(self, response):
+    self.logger.info("came out through %s", response.text.strip())</code></pre>
+<p>pointed at an echo service, run once with the middleware enabled and once disabled. And log <code>response.meta.get("proxy")</code> on failures: when a rotation scheme misbehaves, the failing request naming its own value is the fastest way to see the pattern.</p><div class="pager"><a href="/python/urllib3/"><s>Previous</s>urllib3</a><a class="rt" href="/python/selenium-playwright-python/"><s>Next</s>Selenium and Playwright from Python</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-mechanism">The mechanism</a><a href="#per-spider-not-per-project">Per spider, not per project</a><a href="#precedence">Precedence</a><a href="#rotating-per-request">Rotating per request</a><a href="#concurrency">Concurrency</a><a href="#timeouts">Timeouts</a><a href="#the-other-family">The other family</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

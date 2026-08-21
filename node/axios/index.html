@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wirebound: how each client actually handles a proxy</title>
-<meta name="description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<link rel="canonical" href="https://unimasterz.github.io/">
-<meta property="og:title" content="Wirebound: how each client actually handles a proxy">
-<meta property="og:description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<meta property="og:url" content="https://unimasterz.github.io/">
+<title>axios: the proxy option that quietly does not apply | Wirebound</title>
+<meta name="description" content="The axios proxy option does not apply to https targets in the way people expect, and the fix is an agent. Plus the environment variables axios does read, unlike global fetch.">
+<link rel="canonical" href="https://unimasterz.github.io/node/axios/">
+<meta property="og:title" content="axios: the proxy option that quietly does not apply | Wirebound">
+<meta property="og:description" content="The axios proxy option does not apply to https targets in the way people expect, and the fix is an agent. Plus the environment variables axios does read, unlike global fetch.">
+<meta property="og:url" content="https://unimasterz.github.io/node/axios/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/","inLanguage":"en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"axios: the proxy option that quietly does not apply","description":"The axios proxy option does not apply to https targets in the way people expect, and the fix is an agent. Plus the environment variables axios does read, unlike global fetch.","url":"https://unimasterz.github.io/node/axios/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,12 +164,50 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<div><div class="hero"><h1>How each client actually handles a proxy</h1><p>One page per library, runtime and tool. Where the setting lives, whether an environment variable overrides it, which side resolves the hostname, what happens to certificate checking, and the trap that costs people an afternoon.</p><p>Every entry was run before it was written down. The command that proves it is on the page.</p></div><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><div class="grid"><article class="slab"><h3><a href="/start/">Before the tables</a></h3><p>What is measured on every page and how to repeat it</p><ul><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ul></article><article class="slab"><h3><a href="/python/">Python</a></h3><p>Six clients, six different answers to the same question</p><ul><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ul></article><article class="slab"><h3><a href="/node/">Node.js</a></h3><p>Global fetch changed the answers that older guides give</p><ul><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ul></article></div></div>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/" aria-current="page">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>axios: the proxy option that quietly does not apply</h1><p class="stand">axios has a <code>proxy</code> option, which is why people assume it works everywhere. For encrypted targets it does not do what the name suggests. Tested against axios 1.7.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: pools from a handful of addresses upward" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for axios</th></tr></thead><tbody><tr><td>Where the setting goes</td><td><code>httpsAgent</code> for real work, <code>proxy</code> for plain http only</td></tr><tr><td>Environment override</td><td>yes, and it respects <code>NO_PROXY</code></td></tr><tr><td>Who resolves the name</td><td>your machine</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td>the <code>proxy</code> option is quietly wrong for https targets</td></tr></tbody></table></div>
+<h2 id="the-trap-stated-plainly">The trap, stated plainly</h2>
+<pre><code>// выглядит правильно, для https целей работает не так, как ожидается
+const r = await axios.get("https://example.com", {
+  proxy: { host: "198.51.100.14", port: 8080 },
+});</code></pre>
+<p>For an encrypted target this does not open a tunnel the way a browser or curl would. Depending on version and target you get a certificate error, a plain-text request where you expected a tunnel, or something that appears to work but is not the shape you think.</p>
+<p>The reliable form is an agent:</p>
+<pre><code>import axios from "axios";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import { HttpProxyAgent } from "http-proxy-agent";</code></pre>
+<p>const line = "http://user:pass@198.51.100.14:8080";</p>
+<p>const client = axios.create({   httpAgent:  new HttpProxyAgent(line),   httpsAgent: new HttpsProxyAgent(line),   proxy: false,                  // выключаем встроенный механизм   timeout: 20_000, }); ```</p>
+<p>Three parts and all three matter. The https agent handles encrypted targets. The http agent handles plain ones. And <code>proxy: false</code> stops axios from also applying its own handling on top, which is where the confusing double behaviour comes from.</p>
+<div class="warn"><b>`proxy: false` is not optional here</b><p>Without it, axios may apply both its built-in mechanism and your agent. The result varies by version and it is never what you wanted.</p></div>
+<h2 id="the-environment">The environment</h2>
+<p>Unlike global fetch, axios does read the environment, and it honours the bypass list.</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Variable</th><th>Read</th></tr></thead><tbody><tr><td><code>HTTP_PROXY</code>, <code>http_proxy</code></td><td class="yes">yes</td></tr><tr><td><code>HTTPS_PROXY</code>, <code>https_proxy</code></td><td class="yes">yes</td></tr><tr><td><code>NO_PROXY</code>, <code>no_proxy</code></td><td class="yes">yes</td></tr></tbody></table></div>
+<p>This means a script that works on your machine may behave differently on a server where those are set, and vice versa. <code>proxy: false</code> plus explicit agents removes the environment from the picture entirely, which for a scheduled job is what you want.</p>
+<h2 id="bypass">Bypass</h2>
+<p>If you keep the built-in mechanism, <code>NO_PROXY</code> works with the usual comma-separated syntax. If you use agents, the bypass is your own code:</p>
+<pre><code>const pryamoAgent = undefined;
+const client = axios.create({ proxy: false });</code></pre>
+<p>client.interceptors.request.use((cfg) =&gt; {   const host = new URL(cfg.url, cfg.baseURL).hostname;   const vnutri = host.endsWith(".internal");   cfg.httpsAgent = vnutri ? pryamoAgent : httpsCherez;   return cfg; }); ```</p>
+<h2 id="timeouts">Timeouts</h2>
+<pre><code>axios.create({ timeout: 20_000 });</code></pre>
+<p>One number, and it covers the response, not the connection. A connection that never establishes can sit longer than this value in some situations.</p>
+<p>For a genuine ceiling, use a signal:</p>
+<pre><code>await client.get(url, { signal: AbortSignal.timeout(45_000) });</code></pre>
+<h2 id="retries">Retries</h2>
+<p>Nothing built in. The common package is <code>axios-retry</code>:</p>
+<pre><code>import axiosRetry from "axios-retry";</code></pre>
+<p>axiosRetry(client, {   retries: 3,   retryDelay: axiosRetry.exponentialDelay,   retryCondition: (e) =&gt;     axiosRetry.isNetworkOrIdempotentRequestError(e) ||     e.response?.status === 429, }); ```</p>
+<p><code>exponentialDelay</code> includes a small random component, which is better than the plain backoff several other clients ship with.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>const { data } = await client.get("https://api.ipify.org");
+console.log("axios выходит через", String(data).trim());</code></pre>
+<p>Check both schemes if your job touches both. It is entirely possible to have the https agent configured and the http one missing, and then a single plain-http redirect target goes direct without a word.</p><div class="pager"><a href="/node/global-fetch-undici/"><s>Previous</s>Global fetch and undici</a><a class="rt" href="/node/got/"><s>Next</s>got</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-trap-stated-plainly">The trap, stated plainly</a><a href="#the-environment">The environment</a><a href="#bypass">Bypass</a><a href="#timeouts">Timeouts</a><a href="#retries">Retries</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

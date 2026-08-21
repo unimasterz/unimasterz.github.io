@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wirebound: how each client actually handles a proxy</title>
-<meta name="description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<link rel="canonical" href="https://unimasterz.github.io/">
-<meta property="og:title" content="Wirebound: how each client actually handles a proxy">
-<meta property="og:description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<meta property="og:url" content="https://unimasterz.github.io/">
+<title>Node.js | Wirebound</title>
+<meta name="description" content="Global fetch changed the answers that older guides give">
+<link rel="canonical" href="https://unimasterz.github.io/node/">
+<meta property="og:title" content="Node.js | Wirebound">
+<meta property="og:description" content="Global fetch changed the answers that older guides give">
+<meta property="og:url" content="https://unimasterz.github.io/node/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/","inLanguage":"en"}</script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,12 +164,12 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
 <aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<div><div class="hero"><h1>How each client actually handles a proxy</h1><p>One page per library, runtime and tool. Where the setting lives, whether an environment variable overrides it, which side resolves the hostname, what happens to certificate checking, and the trap that costs people an afternoon.</p><p>Every entry was run before it was written down. The command that proves it is on the page.</p></div><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><div class="grid"><article class="slab"><h3><a href="/start/">Before the tables</a></h3><p>What is measured on every page and how to repeat it</p><ul><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ul></article><article class="slab"><h3><a href="/python/">Python</a></h3><p>Six clients, six different answers to the same question</p><ul><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ul></article><article class="slab"><h3><a href="/node/">Node.js</a></h3><p>Global fetch changed the answers that older guides give</p><ul><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ul></article></div></div>
+<div><div class="hero"><h1>Node.js</h1><p>Global fetch changed the answers that older guides give</p></div><div class="grid"><article class="slab"><h3><a href="/node/global-fetch-undici/">Global fetch and undici</a></h3><p>Every guide written before Node 18 is wrong about this. Global fetch does not read `HTTP_PROXY`, does not read `NO_PROXY`, and h</p></article><article class="slab"><h3><a href="/node/axios/">axios</a></h3><p>axios has a `proxy` option, which is why people assume it works everywhere. For encrypted targets it does not do what the name s</p></article><article class="slab"><h3><a href="/node/got/">got</a></h3><p>The most complete of the Node clients for unattended work: proper retries, hooks, and a timeout object with a genuine total. The</p></article><article class="slab"><h3><a href="/node/node-fetch/">node-fetch</a></h3><p>The package and the built-in have the same name and different mechanisms, which is the source of most of the confusion in Node. </p></article><article class="slab"><h3><a href="/node/playwright-node/">Playwright</a></h3><p>The one tool here that lets you hold several separate routes inside a single browser process. The replacement rule between the t</p></article><article class="slab"><h3><a href="/node/puppeteer/">Puppeteer</a></h3><p>One flag, one browser-wide value, and no credentials. The three ways around the credential problem, and what each costs. Tested </p></article></div></div>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

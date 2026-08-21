@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wirebound: how each client actually handles a proxy</title>
-<meta name="description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<link rel="canonical" href="https://unimasterz.github.io/">
-<meta property="og:title" content="Wirebound: how each client actually handles a proxy">
-<meta property="og:description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<meta property="og:url" content="https://unimasterz.github.io/">
+<title>Puppeteer: where the setting lives and what the browser ignores | Wirebound</title>
+<meta name="description" content="Puppeteer sets the route with a Chrome launch flag, which does not carry credentials, and everything else follows from that one limitation.">
+<link rel="canonical" href="https://unimasterz.github.io/node/puppeteer/">
+<meta property="og:title" content="Puppeteer: where the setting lives and what the browser ignores | Wirebound">
+<meta property="og:description" content="Puppeteer sets the route with a Chrome launch flag, which does not carry credentials, and everything else follows from that one limitation.">
+<meta property="og:url" content="https://unimasterz.github.io/node/puppeteer/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/","inLanguage":"en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Puppeteer: where the setting lives and what the browser ignores","description":"Puppeteer sets the route with a Chrome launch flag, which does not carry credentials, and everything else follows from that one limitation.","url":"https://unimasterz.github.io/node/puppeteer/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,12 +164,48 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<div><div class="hero"><h1>How each client actually handles a proxy</h1><p>One page per library, runtime and tool. Where the setting lives, whether an environment variable overrides it, which side resolves the hostname, what happens to certificate checking, and the trap that costs people an afternoon.</p><p>Every entry was run before it was written down. The command that proves it is on the page.</p></div><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><div class="grid"><article class="slab"><h3><a href="/start/">Before the tables</a></h3><p>What is measured on every page and how to repeat it</p><ul><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ul></article><article class="slab"><h3><a href="/python/">Python</a></h3><p>Six clients, six different answers to the same question</p><ul><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ul></article><article class="slab"><h3><a href="/node/">Node.js</a></h3><p>Global fetch changed the answers that older guides give</p><ul><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ul></article></div></div>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/" aria-current="page">Puppeteer</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>Puppeteer: where the setting lives and what the browser ignores</h1><p class="stand">One flag, one browser-wide value, and no credentials. The three ways around the credential problem, and what each costs. Tested against Puppeteer 22.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network, proxy provider" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for Puppeteer</th></tr></thead><tbody><tr><td>Where the setting goes</td><td>a Chrome launch flag</td></tr><tr><td>Environment override</td><td class="no">no</td></tr><tr><td>Who resolves the name</td><td>the browser</td></tr><tr><td>Certificates</td><td>the browser's own store</td></tr><tr><td>The trap</td><td>the flag ignores credentials in the url</td></tr></tbody></table></div>
+<h2 id="the-setting">The setting</h2>
+<pre><code>import puppeteer from "puppeteer";</code></pre>
+<p>const br = await puppeteer.launch({   args: [     "--proxy-server=http://198.51.100.14:8080",     "--proxy-bypass-list=&lt;-loopback&gt;",   ], }); const page = await br.newPage(); await page.goto("https://example.com", { waitUntil: "domcontentloaded" }); ```</p>
+<p>Browser-wide. Every page and every context in this browser uses it. Unlike Playwright, there is no per-context value.</p>
+<div class="warn"><b>Credentials in the flag do nothing</b><p><code>--proxy-server=http://user:pass@host:8080</code> is accepted and the credentials are ignored. Chrome then shows an authentication dialog, which no page-level code can dismiss.</p></div>
+<h2 id="the-three-ways-around-it">The three ways around it</h2>
+<p><strong>A bound address.</strong> Your machine is on the provider's allowlist, so nothing needs authenticating and the flag works exactly as written. Simplest, and it is the reason bound access exists.</p>
+<p><strong><code>page.authenticate</code>.</strong> Puppeteer can answer the dialog:</p>
+<pre><code>await page.authenticate({ username: "user", password: "pass" });</code></pre>
+<p>This works, with two caveats worth knowing before you rely on it. It is per page, so every new page needs the call, and forgetting one gives you a page that hangs on a dialog. And it interacts awkwardly with request interception on some versions, where enabling interception can swallow the authentication challenge.</p>
+<p><strong>A local relay.</strong> A small process on localhost that holds the credentials and talks to the hop. The browser points at localhost with no credentials at all:</p>
+<pre><code>"--proxy-server=http://127.0.0.1:3128"</code></pre>
+<p>More moving parts, and it is the most robust of the three: it works identically for every browser, every version, and every tool on the machine, and the credentials live in exactly one place.</p>
+<h2 id="several-identities-means-several-browsers">Several identities means several browsers</h2>
+<pre><code>const brA = await puppeteer.launch({ args: ["--proxy-server=http://a:8080"] });
+const brB = await puppeteer.launch({ args: ["--proxy-server=http://b:8080"] });</code></pre>
+<p>Two processes, two sets of memory. Where Playwright gives you two contexts in one process, Puppeteer gives you two browsers. On a machine running many identities that difference adds up quickly, and it is the main practical reason to prefer Playwright for that kind of work.</p>
+<p>Note that <code>createIncognitoBrowserContext</code> isolates storage but <strong>not</strong> the route: contexts inherit the browser's flag and cannot change it.</p>
+<h2 id="bypass">Bypass</h2>
+<pre><code>"--proxy-bypass-list=&lt;-loopback&gt;;*.internal;127.0.0.1"</code></pre>
+<p>Semicolon separated here, unlike the comma separated form Playwright takes. <code>&lt;-loopback&gt;</code> is a special token meaning loopback should also go through the setting; by default Chrome exempts it. Most jobs want loopback exempted, so include it only if you know you need it.</p>
+<h2 id="timeouts">Timeouts</h2>
+<pre><code>await puppeteer.launch({ timeout: 30_000 });
+page.setDefaultNavigationTimeout(30_000);
+await page.goto(url, { timeout: 45_000, waitUntil: "domcontentloaded" });</code></pre>
+<p><code>waitUntil: "networkidle0"</code> is popular in examples and is a poor default for collection: a page with any polling never reaches network idle and you wait for the full timeout on every single page.</p>
+<h2 id="watching-the-underlying-calls">Watching the underlying calls</h2>
+<pre><code>page.on("response", async (r) =&gt; {
+  if (r.url().includes("/api/")) console.log(r.status(), r.url());
+});</code></pre>
+<p>Worth doing on any new target before committing to a browser at all. Finding the call behind the page usually means you can drop the browser and the whole credential problem with it.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>await page.goto("https://api.ipify.org");
+console.log("puppeteer выходит через", (await page.evaluate(() =&gt; document.body.innerText)).trim());</code></pre>
+<p>If you are using <code>page.authenticate</code>, run the check on a page created the same way your real code creates pages. A check on a page that happened to get the call is not a check.</p><div class="pager"><a href="/node/playwright-node/"><s>Previous</s>Playwright</a><span style="flex:1"></span></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-setting">The setting</a><a href="#the-three-ways-around-it">The three ways around it</a><a href="#several-identities-means-several-browsers">Several identities means several browsers</a><a href="#bypass">Bypass</a><a href="#timeouts">Timeouts</a><a href="#watching-the-underlying-calls">Watching the underlying calls</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

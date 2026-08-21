@@ -3,10 +3,20 @@
   <url><loc>https://unimasterz.github.io/</loc></url>
   <url><loc>https://unimasterz.github.io/start/</loc></url>
   <url><loc>https://unimasterz.github.io/python/</loc></url>
+  <url><loc>https://unimasterz.github.io/node/</loc></url>
   <url><loc>https://unimasterz.github.io/start/how-this-was-tested/</loc></url>
   <url><loc>https://unimasterz.github.io/start/what-goes-wrong-first/</loc></url>
   <url><loc>https://unimasterz.github.io/start/reading-a-connection-line/</loc></url>
   <url><loc>https://unimasterz.github.io/python/requests/</loc></url>
   <url><loc>https://unimasterz.github.io/python/httpx/</loc></url>
   <url><loc>https://unimasterz.github.io/python/aiohttp/</loc></url>
+  <url><loc>https://unimasterz.github.io/python/urllib3/</loc></url>
+  <url><loc>https://unimasterz.github.io/python/scrapy/</loc></url>
+  <url><loc>https://unimasterz.github.io/python/selenium-playwright-python/</loc></url>
+  <url><loc>https://unimasterz.github.io/node/global-fetch-undici/</loc></url>
+  <url><loc>https://unimasterz.github.io/node/axios/</loc></url>
+  <url><loc>https://unimasterz.github.io/node/got/</loc></url>
+  <url><loc>https://unimasterz.github.io/node/node-fetch/</loc></url>
+  <url><loc>https://unimasterz.github.io/node/playwright-node/</loc></url>
+  <url><loc>https://unimasterz.github.io/node/puppeteer/</loc></url>
 </urlset>

@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wirebound: how each client actually handles a proxy</title>
-<meta name="description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<link rel="canonical" href="https://unimasterz.github.io/">
-<meta property="og:title" content="Wirebound: how each client actually handles a proxy">
-<meta property="og:description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<meta property="og:url" content="https://unimasterz.github.io/">
+<title>Global fetch and undici: ProxyAgent or nothing | Wirebound</title>
+<meta name="description" content="Node's global fetch ignores every proxy environment variable. The only route is an undici ProxyAgent, set per call or globally, and this is the single most common Node surprise.">
+<link rel="canonical" href="https://unimasterz.github.io/node/global-fetch-undici/">
+<meta property="og:title" content="Global fetch and undici: ProxyAgent or nothing | Wirebound">
+<meta property="og:description" content="Node's global fetch ignores every proxy environment variable. The only route is an undici ProxyAgent, set per call or globally, and this is the single most common Node surprise.">
+<meta property="og:url" content="https://unimasterz.github.io/node/global-fetch-undici/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/","inLanguage":"en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Global fetch and undici: ProxyAgent or nothing","description":"Node's global fetch ignores every proxy environment variable. The only route is an undici ProxyAgent, set per call or globally, and this is the single most common Node surprise.","url":"https://unimasterz.github.io/node/global-fetch-undici/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,12 +164,70 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<div><div class="hero"><h1>How each client actually handles a proxy</h1><p>One page per library, runtime and tool. Where the setting lives, whether an environment variable overrides it, which side resolves the hostname, what happens to certificate checking, and the trap that costs people an afternoon.</p><p>Every entry was run before it was written down. The command that proves it is on the page.</p></div><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><div class="grid"><article class="slab"><h3><a href="/start/">Before the tables</a></h3><p>What is measured on every page and how to repeat it</p><ul><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ul></article><article class="slab"><h3><a href="/python/">Python</a></h3><p>Six clients, six different answers to the same question</p><ul><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ul></article><article class="slab"><h3><a href="/node/">Node.js</a></h3><p>Global fetch changed the answers that older guides give</p><ul><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ul></article></div></div>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/" aria-current="page">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>Global fetch and undici: ProxyAgent or nothing</h1><p class="stand">Every guide written before Node 18 is wrong about this. Global fetch does not read <code>HTTP_PROXY</code>, does not read <code>NO_PROXY</code>, and has no proxy option. Tested against Node 20 and 22 with undici 6.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="Datacenter IPv4 from IPrazon Network, HTTP and SOCKS on the same address" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for global fetch</th></tr></thead><tbody><tr><td>Where the setting goes</td><td>an undici <code>ProxyAgent</code>, per call or globally</td></tr><tr><td>Environment override</td><td><strong>no</strong>, nothing is read</td></tr><tr><td>Who resolves the name</td><td>your machine</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td>it fails silently, going direct with no warning</td></tr></tbody></table></div>
+<h2 id="the-problem">The problem</h2>
+<pre><code>// это НЕ работает, ни в одном виде
+process.env.HTTP_PROXY = "http://198.51.100.14:8080";
+const r = await fetch("https://example.com");   // идёт напрямую</code></pre>
+<p>No error. No warning. The request goes direct and everything appears fine, which is precisely why this costs people days. Node's fetch is undici underneath and undici was designed to take a dispatcher rather than read the environment.</p>
+<h2 id="per-call">Per call</h2>
+<pre><code>import { ProxyAgent } from "undici";</code></pre>
+<p>const agent = new ProxyAgent("http://user:pass@198.51.100.14:8080");</p>
+<p>const r = await fetch("https://example.com", { dispatcher: agent }); ```</p>
+<p><code>dispatcher</code> is not part of the fetch standard, which is why editors and type definitions sometimes complain about it. It works.</p>
+<p>Create the agent once and reuse it. A new agent per call means a new connection pool per call, and you pay full setup on every request.</p>
+<h2 id="globally-for-the-whole-process">Globally, for the whole process</h2>
+<pre><code>import { setGlobalDispatcher, ProxyAgent } from "undici";</code></pre>
+<p>setGlobalDispatcher(new ProxyAgent("http://user:pass@198.51.100.14:8080"));</p>
+<p>// теперь любой fetch в процессе идёт через него const r = await fetch("https://example.com"); ```</p>
+<p>This is what most jobs want. One line at startup and every library in the process that uses global fetch is covered, including ones you did not write.</p>
+<div class="warn"><b>It covers global fetch and nothing else</b><p>A library that imports <code>axios</code>, <code>got</code>, or <code>node:https</code> directly is unaffected by <code>setGlobalDispatcher</code>. If you have a mixed dependency tree, the global dispatcher covers part of it and you have to handle the rest separately.</p></div>
+<h2 id="reading-the-environment-yourself">Reading the environment yourself</h2>
+<p>Since nothing does it for you, do it explicitly and visibly:</p>
+<pre><code>import { setGlobalDispatcher, ProxyAgent, Agent } from "undici";</code></pre>
+<p>const line = process.env.HTTPS_PROXY || process.env.https_proxy           || process.env.HTTP_PROXY  || process.env.http_proxy;</p>
+<p>setGlobalDispatcher(line ? new ProxyAgent(line) : new Agent()); console.log(line ? <code>через ${new URL(line).host}</code> : "напрямую"); ```</p>
+<p>That log line at startup is worth having permanently. It converts an invisible default into a visible statement.</p>
+<h2 id="bypass">Bypass</h2>
+<p><code>ProxyAgent</code> has no bypass list. <code>NO_PROXY</code> does nothing. If some hosts must go direct, you route in your own code:</p>
+<pre><code>const pryamo = new Agent();
+const cherez = new ProxyAgent(line);</code></pre>
+<p>const vybrat = (u) =&gt;   new URL(u).hostname.endsWith(".internal") ? pryamo : cherez;</p>
+<p>await fetch(url, { dispatcher: vybrat(url) }); ```</p>
+<p>Verbose, and it is explicit about a decision that other clients hide behind a string with implementation-specific matching rules.</p>
+<h2 id="timeouts">Timeouts</h2>
+<pre><code>const agent = new ProxyAgent({
+  uri: "http://198.51.100.14:8080",
+  connectTimeout: 5_000,
+  headersTimeout: 20_000,
+  bodyTimeout: 30_000,
+});</code></pre>
+<p>Three clocks and no total. For a hard ceiling, use an abort signal, which is the standard mechanism and does bound the whole call:</p>
+<pre><code>const r = await fetch(url, {
+  dispatcher: agent,
+  signal: AbortSignal.timeout(45_000),
+});</code></pre>
+<p><code>AbortSignal.timeout</code> is the cleanest total-time ceiling available in any client in this reference. Use it.</p>
+<h2 id="connections">Connections</h2>
+<pre><code>new ProxyAgent({
+  uri: line,
+  connections: 20,        // на хост назначения
+  pipelining: 1,
+  keepAliveTimeout: 30_000,
+});</code></pre>
+<p>The default connection count is low. A job with fifty concurrent requests against one host and default settings queues internally, and the symptom looks like a slow target.</p>
+<h2 id="the-other-family">The other family</h2>
+<p><code>ProxyAgent</code> speaks HTTP only. For the other scheme family you need a separate package that supplies a socks dispatcher, or a local relay. There is no built-in support.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>const r = await fetch("https://api.ipify.org", { dispatcher: agent });
+console.log("fetch выходит через", (await r.text()).trim());</code></pre>
+<p>Run it at startup and stop the process if the address matches the machine. Because the failure mode here is silence, this check matters more in Node than anywhere else in this reference.</p><div class="pager"><a href="/python/selenium-playwright-python/"><s>Previous</s>Selenium and Playwright from Python</a><a class="rt" href="/node/axios/"><s>Next</s>axios</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-problem">The problem</a><a href="#per-call">Per call</a><a href="#globally-for-the-whole-process">Globally, for the whole process</a><a href="#reading-the-environment-yourself">Reading the environment yourself</a><a href="#bypass">Bypass</a><a href="#timeouts">Timeouts</a><a href="#connections">Connections</a><a href="#the-other-family">The other family</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

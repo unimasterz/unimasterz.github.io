@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wirebound: how each client actually handles a proxy</title>
-<meta name="description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<link rel="canonical" href="https://unimasterz.github.io/">
-<meta property="og:title" content="Wirebound: how each client actually handles a proxy">
-<meta property="og:description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<meta property="og:url" content="https://unimasterz.github.io/">
+<title>Playwright: browser level, context level, and which overrides which | Wirebound</title>
+<meta name="description" content="Playwright accepts the setting at browser level and at context level, and the context value replaces the browser one entirely. What that means for running several identities in one process.">
+<link rel="canonical" href="https://unimasterz.github.io/node/playwright-node/">
+<meta property="og:title" content="Playwright: browser level, context level, and which overrides which | Wirebound">
+<meta property="og:description" content="Playwright accepts the setting at browser level and at context level, and the context value replaces the browser one entirely. What that means for running several identities in one process.">
+<meta property="og:url" content="https://unimasterz.github.io/node/playwright-node/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/","inLanguage":"en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Playwright: browser level, context level, and which overrides which","description":"Playwright accepts the setting at browser level and at context level, and the context value replaces the browser one entirely. What that means for running several identities in one process.","url":"https://unimasterz.github.io/node/playwright-node/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,12 +164,55 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<div><div class="hero"><h1>How each client actually handles a proxy</h1><p>One page per library, runtime and tool. Where the setting lives, whether an environment variable overrides it, which side resolves the hostname, what happens to certificate checking, and the trap that costs people an afternoon.</p><p>Every entry was run before it was written down. The command that proves it is on the page.</p></div><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><div class="grid"><article class="slab"><h3><a href="/start/">Before the tables</a></h3><p>What is measured on every page and how to repeat it</p><ul><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ul></article><article class="slab"><h3><a href="/python/">Python</a></h3><p>Six clients, six different answers to the same question</p><ul><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ul></article><article class="slab"><h3><a href="/node/">Node.js</a></h3><p>Global fetch changed the answers that older guides give</p><ul><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ul></article></div></div>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/" aria-current="page">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>Playwright: browser level, context level, and which overrides which</h1><p class="stand">The one tool here that lets you hold several separate routes inside a single browser process. The replacement rule between the two levels is the thing to get right. Tested against Playwright 1.44.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="Datacenter IPv4 from IPrazon Network, HTTP and SOCKS on the same address" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for Playwright</th></tr></thead><tbody><tr><td>Where the setting goes</td><td><code>launch({proxy})</code> or <code>newContext({proxy})</code></td></tr><tr><td>Environment override</td><td class="no">no</td></tr><tr><td>Who resolves the name</td><td>the browser</td></tr><tr><td>Certificates</td><td>the browser's own store</td></tr><tr><td>The trap</td><td>context value replaces launch value completely</td></tr></tbody></table></div>
+<h2 id="the-two-levels">The two levels</h2>
+<pre><code>import { chromium } from "playwright";</code></pre>
+<p>const br = await chromium.launch({   proxy: { server: "http://198.51.100.14:8080", username: "user", password: "pass" }, }); const page = await br.newPage(); await page.goto("https://example.com"); ```</p>
+<p>Credentials are separate keys, never in the server string. No encoding, no dialog, no relay. This is the cleanest handling of credentials in any browser tool covered here.</p>
+<h2 id="per-context-and-why-it-matters">Per context, and why it matters</h2>
+<pre><code>const br = await chromium.launch({ proxy: { server: "http://per-context" } });</code></pre>
+<p>const a = await br.newContext({   proxy: { server: "http://a.example:8080", username: "u1", password: "p1" }, }); const b = await br.newContext({   proxy: { server: "http://b.example:8080", username: "u2", password: "p2" }, }); ```</p>
+<p>Two contexts, two routes, separate cookies and storage, one browser process. That is a large saving in memory over launching two browsers, and it is the reason to reach for Playwright over Selenium when you need several identities.</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Launch</th><th>Context</th><th>Result</th></tr></thead><tbody><tr><td>set</td><td>not set</td><td>launch value</td></tr><tr><td>set</td><td>set</td><td><strong>context value only</strong></td></tr><tr><td>not set</td><td>set</td><td>context value</td></tr><tr><td>not set</td><td>not set</td><td>direct</td></tr></tbody></table></div>
+<div class="warn"><b>The context value does not inherit anything</b><p>A context that sets <code>server</code> and omits <code>username</code> does not pick up the credentials from launch. It replaces the whole object. Write every context's proxy out in full, or build it from one source in code.</p></div>
+<p>The placeholder at launch is deliberate: on some engine and version combinations, a browser launched with no proxy at all refuses per-context values. Launching with a dummy server costs nothing and removes the question.</p>
+<h2 id="persistent-contexts">Persistent contexts</h2>
+<pre><code>const ctx = await chromium.launchPersistentContext("./profiles/de-01", {
+  proxy: { server: "http://198.51.100.14:8080", username: "u", password: "p" },
+});</code></pre>
+<p>Here launch and context are the same call, so there is only one level and no replacement rule. This is the right shape when a profile is meant to persist between runs.</p>
+<h2 id="bypass">Bypass</h2>
+<pre><code>proxy: {
+  server: "http://198.51.100.14:8080",
+  bypass: "localhost,127.0.0.1,*.internal",
+}</code></pre>
+<p>Comma separated, no spaces around the commas. Leading dots and wildcards behave as Chrome's bypass list does, since that is what it becomes.</p>
+<p>Worth adding loopback so the driver's own traffic does not go through the hop.</p>
+<h2 id="timeouts">Timeouts</h2>
+<pre><code>const br = await chromium.launch({ proxy, timeout: 30_000 });      // запуск браузера
+ctx.setDefaultNavigationTimeout(30_000);
+ctx.setDefaultTimeout(15_000);
+await page.goto(url, { timeout: 45_000, waitUntil: "domcontentloaded" });</code></pre>
+<p>Four different clocks and they cover different things: starting the browser, navigating, waiting for elements, and one navigation specifically.</p>
+<p><code>waitUntil: "domcontentloaded"</code> is usually what a collection job wants. The default waits for the load event, which on a page with slow third-party resources can add many seconds for content you are not reading.</p>
+<h2 id="watching-what-the-page-actually-requests">Watching what the page actually requests</h2>
+<pre><code>page.on("request", (r) =&gt; console.log(r.method(), r.url()));
+page.on("response", (r) =&gt; console.log(r.status(), r.url()));</code></pre>
+<p>This is how you find the underlying call that a page makes, which is often a much better collection target than the rendered page. Two lines, and it frequently removes the need for the browser entirely.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>for (const [imya, ctx] of [["a", a], ["b", b]]) {
+  const p = await ctx.newPage();
+  await p.goto("https://api.ipify.org");
+  console.log(imya, (await p.innerText("body")).trim());
+  await p.close();
+}</code></pre>
+<p>Check every context, not just one. A context that silently fell back to the launch value or to direct looks perfectly healthy until asked.</p><div class="pager"><a href="/node/node-fetch/"><s>Previous</s>node-fetch</a><a class="rt" href="/node/puppeteer/"><s>Next</s>Puppeteer</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-two-levels">The two levels</a><a href="#per-context-and-why-it-matters">Per context, and why it matters</a><a href="#persistent-contexts">Persistent contexts</a><a href="#bypass">Bypass</a><a href="#timeouts">Timeouts</a><a href="#watching-what-the-page-actually-requests">Watching what the page actually requests</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

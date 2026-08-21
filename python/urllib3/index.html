@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Wirebound: how each client actually handles a proxy</title>
-<meta name="description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<link rel="canonical" href="https://unimasterz.github.io/">
-<meta property="og:title" content="Wirebound: how each client actually handles a proxy">
-<meta property="og:description" content="A per-client reference: where the setting goes, which side resolves the name, what happens to certificates, and the traps in each library.">
-<meta property="og:url" content="https://unimasterz.github.io/">
+<title>urllib3: the layer everything else sits on | Wirebound</title>
+<meta name="description" content="urllib3 is the layer under requests and several others. Knowing where its ProxyManager sits explains behaviour the higher-level clients never document.">
+<link rel="canonical" href="https://unimasterz.github.io/python/urllib3/">
+<meta property="og:title" content="urllib3: the layer everything else sits on | Wirebound">
+<meta property="og:description" content="urllib3 is the layer under requests and several others. Knowing where its ProxyManager sits explains behaviour the higher-level clients never document.">
+<meta property="og:url" content="https://unimasterz.github.io/python/urllib3/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/","inLanguage":"en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"urllib3: the layer everything else sits on","description":"urllib3 is the layer under requests and several others. Knowing where its ProxyManager sits explains behaviour the higher-level clients never document.","url":"https://unimasterz.github.io/python/urllib3/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,12 +164,42 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/" aria-current="true">Python</a><a href="/node/">Node.js</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
-<div><div class="hero"><h1>How each client actually handles a proxy</h1><p>One page per library, runtime and tool. Where the setting lives, whether an environment variable overrides it, which side resolves the hostname, what happens to certificate checking, and the trap that costs people an afternoon.</p><p>Every entry was run before it was written down. The command that proves it is on the page.</p></div><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><div class="grid"><article class="slab"><h3><a href="/start/">Before the tables</a></h3><p>What is measured on every page and how to repeat it</p><ul><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ul></article><article class="slab"><h3><a href="/python/">Python</a></h3><p>Six clients, six different answers to the same question</p><ul><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ul></article><article class="slab"><h3><a href="/node/">Node.js</a></h3><p>Global fetch changed the answers that older guides give</p><ul><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ul></article></div></div>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/" aria-current="page">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/python/">Python</a></p><h1>urllib3: the layer everything else sits on</h1><p class="stand">Most Python HTTP traffic ends up here. When a higher-level client behaves oddly, this is usually the layer that decided. Tested against urllib3 2.2.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network, proxy provider" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for urllib3</th></tr></thead><tbody><tr><td>Where the setting goes</td><td>a <code>ProxyManager</code> instead of a <code>PoolManager</code></td></tr><tr><td>Environment override</td><td>no, urllib3 reads nothing by itself</td></tr><tr><td>Who resolves the name</td><td>your machine for <code>http</code>, far end with the socks extra</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td>a plain <code>PoolManager</code> silently ignores any proxy argument</td></tr></tbody></table></div>
+<h2 id="the-two-managers">The two managers</h2>
+<p>This is the whole API surface for this question.</p>
+<pre><code>import urllib3</code></pre>
+<p># no proxy, ever pm = urllib3.PoolManager()</p>
+<p># everything through the hop px = urllib3.ProxyManager(     "http://user:pass@198.51.100.14:8080",     num_pools=10,     maxsize=20, ) r = px.request("GET", "https://example.com", timeout=urllib3.Timeout(connect=5, read=20)) ```</p>
+<p>There is no <code>proxies=</code> argument on <code>PoolManager</code>. If you pass one, it is accepted as an unknown keyword in some versions and ignored, which is exactly the silent failure that sends people looking at their code for an afternoon.</p>
+<div class="warn"><b>The environment does nothing here</b><p>urllib3 does not read <code>HTTP_PROXY</code> or anything else. That is <code>requests</code> doing it one layer up. So a script that works with requests and fails with raw urllib3 is usually relying on an environment variable it never knew about.</p></div>
+<h2 id="why-this-layer-matters-even-if-you-never-import-">Why this layer matters even if you never import it</h2>
+<p><code>requests</code> mounts an adapter per scheme, and that adapter creates a <code>ProxyManager</code> for you. Several settings people look for in requests actually live here:</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>What you want</th><th>Where it lives</th></tr></thead><tbody><tr><td>how many connections per host</td><td><code>maxsize</code> on the adapter</td></tr><tr><td>how many distinct hosts pooled</td><td><code>num_pools</code></td></tr><tr><td>retry policy</td><td>a <code>Retry</code> object, also urllib3</td></tr><tr><td>whether a full pool blocks or discards</td><td><code>block</code></td></tr></tbody></table></div>
+<pre><code>from requests.adapters import HTTPAdapter
+s.mount("https://", HTTPAdapter(pool_maxsize=20, pool_connections=10))</code></pre>
+<p>The default <code>maxsize</code> is 10. Twenty threads through one host with the default means half of them are waiting for a connection, and the symptom looks exactly like a slow target.</p>
+<h2 id="retries-belong-here">Retries belong here</h2>
+<pre><code>from urllib3.util.retry import Retry</code></pre>
+<p>r = Retry(     total=4,     connect=3,     read=2,     backoff_factor=0.6,     status_forcelist=[429, 500, 502, 503, 504],     allowed_methods=["GET", "HEAD"],     raise_on_status=False,     respect_retry_after_header=True, ) ```</p>
+<p>Two settings worth knowing. <code>allowed_methods</code> stops it retrying anything that changes state, which is the default for good reason. <code>respect_retry_after_header</code> honours the server's own instruction, and it is on by default.</p>
+<p><code>backoff_factor</code> produces growing gaps with no randomness. With many workers, add your own jitter or they retry in unison.</p>
+<h2 id="the-other-family">The other family</h2>
+<pre><code>pip install "urllib3[socks]"</code></pre>
+<pre><code>from urllib3.contrib.socks import SOCKSProxyManager
+px = SOCKSProxyManager("socks5h://user:pass@198.51.100.14:1080")</code></pre>
+<p>The <code>h</code> moves resolution to the far end and this implementation honours the distinction. Confirm with probe two if it matters to the job.</p>
+<h2 id="timeouts">Timeouts</h2>
+<pre><code>urllib3.Timeout(connect=5, read=20)</code></pre>
+<p>Two clocks, no total. Same shape as everywhere else in Python: if you need a ceiling on the whole call, you add it above the library.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>print(px.request("GET", "https://api.ipify.org").data.decode())</code></pre>
+<p>If you are debugging a higher-level client, dropping to this layer for one call is a fast way to find out whether the problem is the client or the connection.</p><div class="pager"><a href="/python/aiohttp/"><s>Previous</s>aiohttp</a><a class="rt" href="/python/scrapy/"><s>Next</s>Scrapy</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-two-managers">The two managers</a><a href="#why-this-layer-matters-even-if-you-never-import-">Why this layer matters even if you never import it</a><a href="#retries-belong-here">Retries belong here</a><a href="#the-other-family">The other family</a><a href="#timeouts">Timeouts</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>
