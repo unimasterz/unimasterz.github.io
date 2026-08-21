@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>node-fetch: still an agent, still not the same as fetch | Wirebound</title>
-<meta name="description" content="node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.">
-<link rel="canonical" href="https://unimasterz.github.io/node/node-fetch/">
-<meta property="og:title" content="node-fetch: still an agent, still not the same as fetch | Wirebound">
-<meta property="og:description" content="node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.">
-<meta property="og:url" content="https://unimasterz.github.io/node/node-fetch/">
+<title>Runtime and machine | Wirebound</title>
+<meta name="description" content="The settings that apply to programs you did not write">
+<link rel="canonical" href="https://unimasterz.github.io/os/">
+<meta property="og:title" content="Runtime and machine | Wirebound">
+<meta property="og:description" content="The settings that apply to programs you did not write">
+<meta property="og:url" content="https://unimasterz.github.io/os/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"node-fetch: still an agent, still not the same as fetch","description":"node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.","url":"https://unimasterz.github.io/node/node-fetch/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,49 +164,12 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a><a href="/cli/">Command line</a><a href="/os/">Runtime and machine</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a><a href="/cli/">Command line</a><a href="/os/" aria-current="true">Runtime and machine</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/" aria-current="page">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
-<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>node-fetch: still an agent, still not the same as fetch</h1><p class="stand">The package and the built-in have the same name and different mechanisms, which is the source of most of the confusion in Node. Tested against node-fetch 3.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: private proxies for collection and automation work" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
-<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for node-fetch</th></tr></thead><tbody><tr><td>Where the setting goes</td><td><code>agent</code>, per call or as a function</td></tr><tr><td>Environment override</td><td class="no">no</td></tr><tr><td>Who resolves the name</td><td>your machine</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td><code>agent</code> and <code>dispatcher</code> are not interchangeable</td></tr></tbody></table></div>
-<h2 id="the-setting">The setting</h2>
-<pre><code>import fetch from "node-fetch";
-import { HttpsProxyAgent } from "https-proxy-agent";</code></pre>
-<p>const agent = new HttpsProxyAgent("http://user:pass@198.51.100.14:8080");</p>
-<p>const r = await fetch("https://example.com", { agent }); ```</p>
-<p>Note the key: <code>agent</code>, not <code>dispatcher</code>. Code copied from an undici example does nothing here, and code copied from here does nothing on global fetch. Both fail silently by going direct.</p>
-<div class="warn"><b>Two fetches, two mechanisms</b><p><code>import fetch from "node-fetch"</code> wants <code>agent</code>. Global <code>fetch</code> wants <code>dispatcher</code>. A project that has both, or that removed the import at some point and kept the options, will go direct without a word. Check which one you are actually calling.</p></div>
-<h2 id="the-agent-as-a-function">The agent as a function</h2>
-<p>node-fetch accepts a function, which is how you handle both protocols and a bypass in one place:</p>
-<pre><code>const httpAgent  = new HttpProxyAgent(line);
-const httpsAgent = new HttpsProxyAgent(line);</code></pre>
-<p>const vybrat = (parsedUrl) =&gt; {   if (parsedUrl.hostname.endsWith(".internal")) return undefined;   // напрямую   return parsedUrl.protocol === "http:" ? httpAgent : httpsAgent; };</p>
-<p>const r = await fetch(url, { agent: vybrat }); ```</p>
-<p>Returning <code>undefined</code> means direct. This is the neatest bypass mechanism of the Node clients, because it is a plain function instead of a matching string.</p>
-<h2 id="wrapping-it-once">Wrapping it once</h2>
-<p>Passing <code>agent</code> at every call site guarantees one gets forgotten. Wrap instead:</p>
-<pre><code>const nashFetch = (url, opt = {}) =&gt;
-  fetch(url, { agent: vybrat, ...opt });</code></pre>
-<p>Put the spread after so a caller can still override deliberately.</p>
-<h2 id="timeouts">Timeouts</h2>
-<p>node-fetch 3 removed the <code>timeout</code> option. Use a signal:</p>
-<pre><code>const r = await fetch(url, {
-  agent: vybrat,
-  signal: AbortSignal.timeout(30_000),
-});</code></pre>
-<p>This bounds the whole call, which is what you want. Guides written for node-fetch 2 still show <code>timeout: 30000</code>, and it is silently ignored in 3.</p>
-<h2 id="redirects">Redirects</h2>
-<pre><code>const r = await fetch(url, { agent: vybrat, redirect: "follow", follow: 5 });</code></pre>
-<p>The agent function is consulted again for each hop, so a redirect from https to http picks the right agent automatically, and a redirect to an internal host correctly goes direct. That is the payoff for the function form.</p>
-<h2 id="should-you-still-use-it">Should you still use it</h2>
-<p>For new code, global fetch with undici covers most of what this package was for, and it is one fewer dependency.</p>
-<p>node-fetch still earns its place in two cases: the agent function, which has no clean equivalent on global fetch, and existing code where switching mechanisms means touching every call site.</p>
-<h2 id="confirming-it-works">Confirming it works</h2>
-<pre><code>const r = await nashFetch("https://api.ipify.org");
-console.log("node-fetch выходит через", (await r.text()).trim());</code></pre>
-<p>If your project has both fetches, run the check through the same wrapper your real code uses. Testing the one you are not calling is exactly how this problem survives.</p><div class="pager"><a href="/node/got/"><s>Previous</s>got</a><a class="rt" href="/node/playwright-node/"><s>Next</s>Playwright</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-setting">The setting</a><a href="#the-agent-as-a-function">The agent as a function</a><a href="#wrapping-it-once">Wrapping it once</a><a href="#timeouts">Timeouts</a><a href="#redirects">Redirects</a><a href="#should-you-still-use-it">Should you still use it</a><a href="#confirming-it-works">Confirming it works</a></aside>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
+<div><div class="hero"><h1>Runtime and machine</h1><p>The settings that apply to programs you did not write</p></div><div class="grid"><article class="slab"><h3><a href="/os/environment-precedence/">Environment variables</a></h3><p>There is no standard here, only a widespread convention that every implementation follows slightly differently. This page is the</p></article><article class="slab"><h3><a href="/os/no-proxy-rules/">The bypass list</a></h3><p>`no_proxy` is the setting most likely to work on your machine and fail on the server, because every implementation invented its </p></article><article class="slab"><h3><a href="/os/cron-and-schedulers/">cron and schedulers</a></h3><p>The most reliable way to produce a job that works when you test it and fails every night. The cause is always the same and the f</p></article></div></div>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

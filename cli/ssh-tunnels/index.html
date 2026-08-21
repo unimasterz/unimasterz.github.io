@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>node-fetch: still an agent, still not the same as fetch | Wirebound</title>
-<meta name="description" content="node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.">
-<link rel="canonical" href="https://unimasterz.github.io/node/node-fetch/">
-<meta property="og:title" content="node-fetch: still an agent, still not the same as fetch | Wirebound">
-<meta property="og:description" content="node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.">
-<meta property="og:url" content="https://unimasterz.github.io/node/node-fetch/">
+<title>ssh: turning a shell into a local hop | Wirebound</title>
+<meta name="description" content="An ssh account on a machine gives you a local hop for anything on your computer. The three forwarding modes, what each is for, and how to keep one alive unattended.">
+<link rel="canonical" href="https://unimasterz.github.io/cli/ssh-tunnels/">
+<meta property="og:title" content="ssh: turning a shell into a local hop | Wirebound">
+<meta property="og:description" content="An ssh account on a machine gives you a local hop for anything on your computer. The three forwarding modes, what each is for, and how to keep one alive unattended.">
+<meta property="og:url" content="https://unimasterz.github.io/cli/ssh-tunnels/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"node-fetch: still an agent, still not the same as fetch","description":"node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.","url":"https://unimasterz.github.io/node/node-fetch/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"ssh: turning a shell into a local hop","description":"An ssh account on a machine gives you a local hop for anything on your computer. The three forwarding modes, what each is for, and how to keep one alive unattended.","url":"https://unimasterz.github.io/cli/ssh-tunnels/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,49 +164,61 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a><a href="/cli/">Command line</a><a href="/os/">Runtime and machine</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a><a href="/cli/" aria-current="true">Command line</a><a href="/os/">Runtime and machine</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/" aria-current="page">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
-<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>node-fetch: still an agent, still not the same as fetch</h1><p class="stand">The package and the built-in have the same name and different mechanisms, which is the source of most of the confusion in Node. Tested against node-fetch 3.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: private proxies for collection and automation work" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
-<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for node-fetch</th></tr></thead><tbody><tr><td>Where the setting goes</td><td><code>agent</code>, per call or as a function</td></tr><tr><td>Environment override</td><td class="no">no</td></tr><tr><td>Who resolves the name</td><td>your machine</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td><code>agent</code> and <code>dispatcher</code> are not interchangeable</td></tr></tbody></table></div>
-<h2 id="the-setting">The setting</h2>
-<pre><code>import fetch from "node-fetch";
-import { HttpsProxyAgent } from "https-proxy-agent";</code></pre>
-<p>const agent = new HttpsProxyAgent("http://user:pass@198.51.100.14:8080");</p>
-<p>const r = await fetch("https://example.com", { agent }); ```</p>
-<p>Note the key: <code>agent</code>, not <code>dispatcher</code>. Code copied from an undici example does nothing here, and code copied from here does nothing on global fetch. Both fail silently by going direct.</p>
-<div class="warn"><b>Two fetches, two mechanisms</b><p><code>import fetch from "node-fetch"</code> wants <code>agent</code>. Global <code>fetch</code> wants <code>dispatcher</code>. A project that has both, or that removed the import at some point and kept the options, will go direct without a word. Check which one you are actually calling.</p></div>
-<h2 id="the-agent-as-a-function">The agent as a function</h2>
-<p>node-fetch accepts a function, which is how you handle both protocols and a bypass in one place:</p>
-<pre><code>const httpAgent  = new HttpProxyAgent(line);
-const httpsAgent = new HttpsProxyAgent(line);</code></pre>
-<p>const vybrat = (parsedUrl) =&gt; {   if (parsedUrl.hostname.endsWith(".internal")) return undefined;   // напрямую   return parsedUrl.protocol === "http:" ? httpAgent : httpsAgent; };</p>
-<p>const r = await fetch(url, { agent: vybrat }); ```</p>
-<p>Returning <code>undefined</code> means direct. This is the neatest bypass mechanism of the Node clients, because it is a plain function instead of a matching string.</p>
-<h2 id="wrapping-it-once">Wrapping it once</h2>
-<p>Passing <code>agent</code> at every call site guarantees one gets forgotten. Wrap instead:</p>
-<pre><code>const nashFetch = (url, opt = {}) =&gt;
-  fetch(url, { agent: vybrat, ...opt });</code></pre>
-<p>Put the spread after so a caller can still override deliberately.</p>
-<h2 id="timeouts">Timeouts</h2>
-<p>node-fetch 3 removed the <code>timeout</code> option. Use a signal:</p>
-<pre><code>const r = await fetch(url, {
-  agent: vybrat,
-  signal: AbortSignal.timeout(30_000),
-});</code></pre>
-<p>This bounds the whole call, which is what you want. Guides written for node-fetch 2 still show <code>timeout: 30000</code>, and it is silently ignored in 3.</p>
-<h2 id="redirects">Redirects</h2>
-<pre><code>const r = await fetch(url, { agent: vybrat, redirect: "follow", follow: 5 });</code></pre>
-<p>The agent function is consulted again for each hop, so a redirect from https to http picks the right agent automatically, and a redirect to an internal host correctly goes direct. That is the payoff for the function form.</p>
-<h2 id="should-you-still-use-it">Should you still use it</h2>
-<p>For new code, global fetch with undici covers most of what this package was for, and it is one fewer dependency.</p>
-<p>node-fetch still earns its place in two cases: the agent function, which has no clean equivalent on global fetch, and existing code where switching mechanisms means touching every call site.</p>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/" aria-current="page">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/cli/">Command line</a></p><h1>ssh: turning a shell into a local hop</h1><p class="stand">If you have shell access somewhere, you already have a working hop and did not need to install anything. Useful for testing, for reaching things from a specific place, and as a stopgap. Tested against OpenSSH 9.6.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-socks5-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="SOCKS5 from IPrazon Network, up to 3000 threads" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for ssh forwarding</th></tr></thead><tbody><tr><td>Where the setting goes</td><td>a local port your programs point at</td></tr><tr><td>Environment override</td><td>not applicable</td></tr><tr><td>Who resolves the name</td><td>the far end, in dynamic mode</td></tr><tr><td>Certificates</td><td>untouched, end to end as usual</td></tr><tr><td>The trap</td><td>a tunnel dies quietly and nothing tells you</td></tr></tbody></table></div>
+<h2 id="dynamic-a-general-purpose-local-hop">Dynamic: a general purpose local hop</h2>
+<pre><code>ssh -D 1080 -N -q user@server.example</code></pre>
+<p>Now <code>socks5://127.0.0.1:1080</code> works for anything on your machine.</p>
+<pre><code>curl -x socks5h://127.0.0.1:1080 https://api.ipify.org; echo</code></pre>
+<p>The <code>h</code> matters as everywhere: with it, hostnames are resolved at the server end. In dynamic mode that is usually the whole point.</p>
+<p><code>-N</code> means do not run a command, <code>-q</code> suppresses the banner. Without <code>-N</code> you get a shell you did not want.</p>
+<h2 id="local-one-specific-service">Local: one specific service</h2>
+<pre><code>ssh -L 5433:db.internal:5432 -N user@server.example</code></pre>
+<p>Now <code>localhost:5433</code> reaches <code>db.internal:5432</code> as seen from the server. For one service this is simpler than dynamic mode and does not require the client to speak any particular scheme.</p>
+<h2 id="remote-the-other-direction">Remote: the other direction</h2>
+<pre><code>ssh -R 8080:localhost:3000 -N user@server.example</code></pre>
+<p>The server's port 8080 reaches your local port 3000. Occasionally useful for showing somebody a local thing; requires <code>GatewayPorts</code> on the server for anything beyond the server's own loopback.</p>
+<h2 id="keeping-it-alive">Keeping it alive</h2>
+<p>A tunnel that dies leaves your programs connecting to a closed port, and the failure looks like the target being down.</p>
+<pre><code>ssh -D 1080 -N -q \
+    -o ServerAliveInterval=30 \
+    -o ServerAliveCountMax=3 \
+    -o ExitOnForwardFailure=yes \
+    user@server.example</code></pre>
+<p><code>ExitOnForwardFailure</code> is the important one. Without it, ssh happily connects even when it could not open the forward, and you have a live session forwarding nothing.</p>
+<p>For anything unattended, use <code>autossh</code> or a supervisor:</p>
+<pre><code>autossh -M 0 -f -N -D 1080 \
+  -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+  -o ExitOnForwardFailure=yes user@server.example</code></pre>
+<p>Or a unit file, which is what I would use on a server:</p>
+<pre><code>[Service]
+ExecStart=/usr/bin/ssh -N -D 1080 -o ServerAliveInterval=30 \
+  -o ExitOnForwardFailure=yes user@server.example
+Restart=always
+RestartSec=10</code></pre>
+<h2 id="config-file-instead-of-flags">Config file instead of flags</h2>
+<pre><code># ~/.ssh/config
+Host hop
+    HostName server.example
+    User user
+    DynamicForward 1080
+    ServerAliveInterval 30
+    ExitOnForwardFailure yes
+    IdentityFile ~/.ssh/hop_ed25519</code></pre>
+<pre><code>ssh -N hop</code></pre>
+<p>Same benefit as everywhere: the settings live in one file, the command is short, and nothing lands in your shell history.</p>
+<h2 id="what-this-is-good-for-and-what-it-is-not">What this is good for, and what it is not</h2>
+<p><strong>Good for:</strong> testing how a target behaves from a specific place, reaching internal services, a stopgap when you need one route right now.</p>
+<p><strong>Not good for:</strong> running many parallel jobs. Everything shares one connection to one server, so the far end sees one address and the tunnel is a single point that carries all of it. For a job that needs volume or several distinct origins, this is the wrong shape and a real pool is the right one.</p>
 <h2 id="confirming-it-works">Confirming it works</h2>
-<pre><code>const r = await nashFetch("https://api.ipify.org");
-console.log("node-fetch выходит через", (await r.text()).trim());</code></pre>
-<p>If your project has both fetches, run the check through the same wrapper your real code uses. Testing the one you are not calling is exactly how this problem survives.</p><div class="pager"><a href="/node/got/"><s>Previous</s>got</a><a class="rt" href="/node/playwright-node/"><s>Next</s>Playwright</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-setting">The setting</a><a href="#the-agent-as-a-function">The agent as a function</a><a href="#wrapping-it-once">Wrapping it once</a><a href="#timeouts">Timeouts</a><a href="#redirects">Redirects</a><a href="#should-you-still-use-it">Should you still use it</a><a href="#confirming-it-works">Confirming it works</a></aside>
+<pre><code>ss -tlnp | grep 1080                                    # слушает ли порт
+curl -x socks5h://127.0.0.1:1080 -s https://api.ipify.org; echo</code></pre>
+<p>Check the port first. A dead tunnel and a misconfigured client look identical from the curl output alone, and the first command distinguishes them in a second.</p><div class="pager"><a href="/cli/git/"><s>Previous</s>git</a><a class="rt" href="/os/environment-precedence/"><s>Next</s>Environment variables</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#dynamic-a-general-purpose-local-hop">Dynamic: a general purpose local hop</a><a href="#local-one-specific-service">Local: one specific service</a><a href="#remote-the-other-direction">Remote: the other direction</a><a href="#keeping-it-alive">Keeping it alive</a><a href="#config-file-instead-of-flags">Config file instead of flags</a><a href="#what-this-is-good-for-and-what-it-is-not">What this is good for, and what it is not</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

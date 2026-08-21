@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>node-fetch: still an agent, still not the same as fetch | Wirebound</title>
-<meta name="description" content="node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.">
-<link rel="canonical" href="https://unimasterz.github.io/node/node-fetch/">
-<meta property="og:title" content="node-fetch: still an agent, still not the same as fetch | Wirebound">
-<meta property="og:description" content="node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.">
-<meta property="og:url" content="https://unimasterz.github.io/node/node-fetch/">
+<title>wget: config file, environment, and the flag that beats both | Wirebound</title>
+<meta name="description" content="wget reads its config file and the environment, and the flag that beats both is not the one people expect. Plus the recursive options that make it a collection tool.">
+<link rel="canonical" href="https://unimasterz.github.io/cli/wget/">
+<meta property="og:title" content="wget: config file, environment, and the flag that beats both | Wirebound">
+<meta property="og:description" content="wget reads its config file and the environment, and the flag that beats both is not the one people expect. Plus the recursive options that make it a collection tool.">
+<meta property="og:url" content="https://unimasterz.github.io/cli/wget/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"node-fetch: still an agent, still not the same as fetch","description":"node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.","url":"https://unimasterz.github.io/node/node-fetch/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"wget: config file, environment, and the flag that beats both","description":"wget reads its config file and the environment, and the flag that beats both is not the one people expect. Plus the recursive options that make it a collection tool.","url":"https://unimasterz.github.io/cli/wget/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,49 +164,61 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a><a href="/cli/">Command line</a><a href="/os/">Runtime and machine</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a><a href="/cli/" aria-current="true">Command line</a><a href="/os/">Runtime and machine</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/" aria-current="page">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
-<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>node-fetch: still an agent, still not the same as fetch</h1><p class="stand">The package and the built-in have the same name and different mechanisms, which is the source of most of the confusion in Node. Tested against node-fetch 3.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: private proxies for collection and automation work" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
-<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for node-fetch</th></tr></thead><tbody><tr><td>Where the setting goes</td><td><code>agent</code>, per call or as a function</td></tr><tr><td>Environment override</td><td class="no">no</td></tr><tr><td>Who resolves the name</td><td>your machine</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td><code>agent</code> and <code>dispatcher</code> are not interchangeable</td></tr></tbody></table></div>
-<h2 id="the-setting">The setting</h2>
-<pre><code>import fetch from "node-fetch";
-import { HttpsProxyAgent } from "https-proxy-agent";</code></pre>
-<p>const agent = new HttpsProxyAgent("http://user:pass@198.51.100.14:8080");</p>
-<p>const r = await fetch("https://example.com", { agent }); ```</p>
-<p>Note the key: <code>agent</code>, not <code>dispatcher</code>. Code copied from an undici example does nothing here, and code copied from here does nothing on global fetch. Both fail silently by going direct.</p>
-<div class="warn"><b>Two fetches, two mechanisms</b><p><code>import fetch from "node-fetch"</code> wants <code>agent</code>. Global <code>fetch</code> wants <code>dispatcher</code>. A project that has both, or that removed the import at some point and kept the options, will go direct without a word. Check which one you are actually calling.</p></div>
-<h2 id="the-agent-as-a-function">The agent as a function</h2>
-<p>node-fetch accepts a function, which is how you handle both protocols and a bypass in one place:</p>
-<pre><code>const httpAgent  = new HttpProxyAgent(line);
-const httpsAgent = new HttpsProxyAgent(line);</code></pre>
-<p>const vybrat = (parsedUrl) =&gt; {   if (parsedUrl.hostname.endsWith(".internal")) return undefined;   // напрямую   return parsedUrl.protocol === "http:" ? httpAgent : httpsAgent; };</p>
-<p>const r = await fetch(url, { agent: vybrat }); ```</p>
-<p>Returning <code>undefined</code> means direct. This is the neatest bypass mechanism of the Node clients, because it is a plain function instead of a matching string.</p>
-<h2 id="wrapping-it-once">Wrapping it once</h2>
-<p>Passing <code>agent</code> at every call site guarantees one gets forgotten. Wrap instead:</p>
-<pre><code>const nashFetch = (url, opt = {}) =&gt;
-  fetch(url, { agent: vybrat, ...opt });</code></pre>
-<p>Put the spread after so a caller can still override deliberately.</p>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/" aria-current="page">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/cli/">Command line</a></p><h1>wget: config file, environment, and the flag that beats both</h1><p class="stand">wget takes its settings from three places with a precedence that surprises people, and there is no <code>-x</code> equivalent. Tested against GNU wget 1.24.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-socks5-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="SOCKS5 addresses from IPrazon Network" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for wget</th></tr></thead><tbody><tr><td>Where the setting goes</td><td>config file, environment, or <code>-e</code> on the command line</td></tr><tr><td>Environment override</td><td>yes, and the config file beats it</td></tr><tr><td>Who resolves the name</td><td>your machine</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td>there is no <code>--proxy=URL</code> flag, only <code>-e</code></td></tr></tbody></table></div>
+<h2 id="the-three-places">The three places</h2>
+<pre><code># 1. окружение
+export https_proxy=http://user:pass@198.51.100.14:8080
+wget https://example.com</code></pre>
+<p># 2. файл настроек, ~/.wgetrc или ./.wgetrc https_proxy = http://user:pass@198.51.100.14:8080 use_proxy = on</p>
+<p># 3. в командной строке, через -e wget -e use_proxy=on -e https_proxy=http://198.51.100.14:8080 https://example.com ```</p>
+<div class="warn"><b>`--proxy=` is not what you think</b><p><code>--proxy</code> exists but takes on or off, not an address. <code>wget --proxy=http://host:8080</code> is a syntax error, and people conclude wget cannot do it. The address goes in <code>-e</code> or in one of the other two places.</p></div>
+<p>Credentials have their own flags, which avoids the encoding problem:</p>
+<pre><code>wget --proxy-user=user --proxy-password=pass https://example.com</code></pre>
+<h2 id="precedence">Precedence</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Source</th><th>Beats</th></tr></thead><tbody><tr><td><code>-e</code> on the command line</td><td>everything</td></tr><tr><td><code>./.wgetrc</code> in the current directory</td><td>the home config</td></tr><tr><td><code>~/.wgetrc</code></td><td>the environment</td></tr><tr><td>environment variables</td><td>nothing above</td></tr></tbody></table></div>
+<p>The config file beating the environment is the opposite of what several other tools do, and it is where confusion usually starts. A forgotten line in <code>~/.wgetrc</code> silently overrides the variable you just exported.</p>
+<p>To find out what is actually in effect:</p>
+<pre><code>wget --debug https://example.com 2&gt;&amp;1 | head -30</code></pre>
+<p>The debug output names the proxy it decided to use, which settles the question in one command.</p>
+<h2 id="bypass">Bypass</h2>
+<pre><code>export no_proxy="localhost,127.0.0.1,.internal"</code></pre>
+<p>or <code>no_proxy = localhost,127.0.0.1,.internal</code> in the config file. A leading dot matches subdomains. There is no per-invocation flag for it beyond <code>-e no_proxy=...</code>.</p>
+<h2 id="where-wget-earns-its-place">Where wget earns its place</h2>
+<p>curl fetches one thing well. wget walks a site, and that is what it is for.</p>
+<pre><code>wget \
+  --recursive --level=3 \
+  --no-parent \
+  --accept-regex '/product/[0-9]+' \
+  --wait=2 --random-wait \
+  --limit-rate=200k \
+  --tries=3 --waitretry=10 \
+  --timeout=30 \
+  --directory-prefix=./sobrannoe \
+  --no-verbose --append-output=run.log \
+  https://example.com/catalogue/</code></pre>
+<p>The three that matter for behaving well:</p>
+<p><code>--wait</code> plus <code>--random-wait</code> puts a pause between requests and varies it, which is the pacing everything else in this reference argues for, available as two flags.</p>
+<p><code>--limit-rate</code> caps bandwidth, which is politeness you rarely see offered.</p>
+<p><code>--no-parent</code> stops it climbing out of the directory you pointed at, which is the difference between collecting a category and collecting the entire site by accident.</p>
+<h2 id="resuming">Resuming</h2>
+<pre><code>wget --continue --timestamping --input-file=spisok.txt</code></pre>
+<p><code>--timestamping</code> skips files that have not changed since the last run, using the server's own dates. On a large collection that is the difference between an hour and four.</p>
+<p><code>--continue</code> resumes a partial download instead of starting over, which matters for large files on an unreliable path.</p>
 <h2 id="timeouts">Timeouts</h2>
-<p>node-fetch 3 removed the <code>timeout</code> option. Use a signal:</p>
-<pre><code>const r = await fetch(url, {
-  agent: vybrat,
-  signal: AbortSignal.timeout(30_000),
-});</code></pre>
-<p>This bounds the whole call, which is what you want. Guides written for node-fetch 2 still show <code>timeout: 30000</code>, and it is silently ignored in 3.</p>
-<h2 id="redirects">Redirects</h2>
-<pre><code>const r = await fetch(url, { agent: vybrat, redirect: "follow", follow: 5 });</code></pre>
-<p>The agent function is consulted again for each hop, so a redirect from https to http picks the right agent automatically, and a redirect to an internal host correctly goes direct. That is the payoff for the function form.</p>
-<h2 id="should-you-still-use-it">Should you still use it</h2>
-<p>For new code, global fetch with undici covers most of what this package was for, and it is one fewer dependency.</p>
-<p>node-fetch still earns its place in two cases: the agent function, which has no clean equivalent on global fetch, and existing code where switching mechanisms means touching every call site.</p>
+<pre><code>--timeout=30            # ставит все три сразу
+--dns-timeout=5
+--connect-timeout=10
+--read-timeout=30</code></pre>
+<p>Three separate clocks and <code>--timeout</code> sets all of them. Unlike most clients here there is no total, so a recursive run has no ceiling; bound it with <code>--tries</code> and <code>--quota</code> instead.</p>
 <h2 id="confirming-it-works">Confirming it works</h2>
-<pre><code>const r = await nashFetch("https://api.ipify.org");
-console.log("node-fetch выходит через", (await r.text()).trim());</code></pre>
-<p>If your project has both fetches, run the check through the same wrapper your real code uses. Testing the one you are not calling is exactly how this problem survives.</p><div class="pager"><a href="/node/got/"><s>Previous</s>got</a><a class="rt" href="/node/playwright-node/"><s>Next</s>Playwright</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-setting">The setting</a><a href="#the-agent-as-a-function">The agent as a function</a><a href="#wrapping-it-once">Wrapping it once</a><a href="#timeouts">Timeouts</a><a href="#redirects">Redirects</a><a href="#should-you-still-use-it">Should you still use it</a><a href="#confirming-it-works">Confirming it works</a></aside>
+<pre><code>wget -qO- https://api.ipify.org; echo</code></pre>
+<p><code>-qO-</code> prints to standard output and suppresses the progress noise, which makes it the wget equivalent of <code>curl -s</code>.</p><div class="pager"><a href="/cli/curl/"><s>Previous</s>curl</a><a class="rt" href="/cli/git/"><s>Next</s>git</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-three-places">The three places</a><a href="#precedence">Precedence</a><a href="#bypass">Bypass</a><a href="#where-wget-earns-its-place">Where wget earns its place</a><a href="#resuming">Resuming</a><a href="#timeouts">Timeouts</a><a href="#confirming-it-works">Confirming it works</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

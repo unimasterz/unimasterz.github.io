@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Environment variables: exact precedence and the casing problem | Wirebound</title>
+<meta name="description" content="The exact order in which proxy environment variables are read, why upper and lower case both exist and disagree, and which clients ignore them entirely.">
+<link rel="canonical" href="https://unimasterz.github.io/os/environment-precedence/">
+<meta property="og:title" content="Environment variables: exact precedence and the casing problem | Wirebound">
+<meta property="og:description" content="The exact order in which proxy environment variables are read, why upper and lower case both exist and disagree, and which clients ignore them entirely.">
+<meta property="og:url" content="https://unimasterz.github.io/os/environment-precedence/">
+<meta property="og:site_name" content="Wirebound">
+<meta name="color-scheme" content="light dark">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Environment variables: exact precedence and the casing problem","description":"The exact order in which proxy environment variables are read, why upper and lower case both exist and disagree, and which clients ignore them entirely.","url":"https://unimasterz.github.io/os/environment-precedence/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+--sheet:#ffffff;--page:#f4f6f9;--sunk:#eaeef4;
+--ink:#16181d;--ink2:#4a515e;--faint:#79818f;
+--edge:#dbe1ea;--edge2:#eef1f6;
+--mark:#a3182b;--mark2:#c8395079;--warn:#8a5a04;--warnbg:#fdf6e6;--warnedge:#eddcae;
+--code:#f5f7fa;--codeedge:#e3e8f0;
+--rad:5px;
+--sans:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+--mono:"Cascadia Mono",Consolas,"DejaVu Sans Mono",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-skin="day"]){
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}}
+:root[data-skin="night"]{
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);
+font:400 15.5px/1.62 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--mark);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--mark);outline-offset:2px;border-radius:3px}
+
+/* шапка */
+.hdr{background:var(--sheet);border-bottom:1px solid var(--edge);position:sticky;top:0;z-index:20}
+.hdr .in2{max-width:1360px;margin:0 auto;padding:0 22px;height:54px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:16.5px;color:var(--ink);letter-spacing:-.2px}
+.brand em{font-style:normal;font-weight:400;font-size:12px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
+.hnav{display:flex;gap:3px;margin-left:auto}
+.hnav a{padding:6px 11px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;font-weight:500}
+.hnav a:hover{background:var(--sunk);text-decoration:none;color:var(--ink)}
+.hnav a[aria-current]{color:var(--mark);background:var(--sunk)}
+.skin{border:1px solid var(--edge);background:transparent;color:var(--ink2);
+border-radius:var(--rad);padding:5px 10px;font:500 12.5px var(--sans);cursor:pointer}
+.skin:hover{background:var(--sunk)}
+
+/* каркас */
+.wrap{max-width:1360px;margin:0 auto;padding:26px 22px 60px;display:grid;
+grid-template-columns:250px minmax(0,1fr) 196px;gap:34px;align-items:start}
+.side{position:sticky;top:78px;max-height:calc(100vh - 100px);overflow:auto;padding-right:6px}
+.side h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.side ol{list-style:none;margin:0 0 18px;padding:0}
+.side li{margin:0}
+.side li a{display:block;padding:4px 9px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;
+border-left:2px solid transparent}
+.side li a:hover{background:var(--sunk);color:var(--ink);text-decoration:none}
+.side li a[aria-current]{color:var(--mark);border-left-color:var(--mark);background:var(--sunk);font-weight:600}
+
+.doc{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:34px 40px 42px;min-width:0}
+.crumb{font-size:12.5px;color:var(--faint);margin:0 0 12px}
+.crumb a{color:var(--faint)}
+.doc h1{margin:0 0 10px;font-size:29px;line-height:1.22;font-weight:750;letter-spacing:-.5px;text-wrap:balance}
+.doc h2{margin:36px 0 12px;font-size:20px;font-weight:700;letter-spacing:-.2px;
+padding-bottom:7px;border-bottom:1px solid var(--edge2);scroll-margin-top:74px}
+.doc h3{margin:26px 0 8px;font-size:16px;font-weight:700;scroll-margin-top:74px}
+.doc p{margin:0 0 15px;max-width:73ch}
+.doc ul,.doc ol{margin:0 0 15px;padding-left:22px;max-width:71ch}
+.doc li{margin:0 0 6px}
+.stand{font-size:16.5px;color:var(--ink2);margin:0 0 24px;max-width:66ch;line-height:1.6}
+
+/* таблица-справка */
+.tbl{width:100%;border-collapse:collapse;margin:0 0 20px;font-size:13.8px;display:table}
+.tblwrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--edge);border-radius:8px}
+.tblwrap .tbl{margin:0;border:0}
+.tbl th{text-align:left;padding:9px 13px;background:var(--sunk);font-weight:700;font-size:12px;
+letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--edge)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--edge2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{white-space:nowrap;font-family:var(--mono);font-size:12.8px;color:var(--ink)}
+.tbl .yes{color:var(--mark);font-weight:700}
+.tbl .no{color:var(--faint)}
+
+/* код */
+pre{margin:0 0 18px;background:var(--code);border:1px solid var(--codeedge);border-radius:8px;
+padding:14px 16px;overflow-x:auto;font:13.2px/1.55 var(--mono)}
+code{font-family:var(--mono);font-size:.905em}
+p code,li code,td code{background:var(--code);border:1px solid var(--codeedge);
+border-radius:4px;padding:1px 5px}
+
+/* врезки */
+.warn,.tip{border:1px solid var(--warnedge);background:var(--warnbg);border-radius:8px;
+padding:13px 16px;margin:0 0 18px;font-size:14.4px}
+.warn b,.tip b{display:block;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--warn);margin-bottom:4px}
+.tip{border-color:var(--edge);background:var(--sunk)}
+.tip b{color:var(--faint)}
+.warn p:last-child,.tip p:last-child{margin-bottom:0}
+
+/* правая полоса */
+.strip{position:sticky;top:78px;font-size:13px}
+.strip h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.strip a{display:block;padding:3px 0 3px 10px;color:var(--ink2);border-left:2px solid var(--edge)}
+.strip a:hover{color:var(--mark);border-left-color:var(--mark2);text-decoration:none}
+
+/* низ статьи */
+.pager{display:flex;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--edge2)}
+.pager a{flex:1;border:1px solid var(--edge);border-radius:8px;padding:11px 14px;color:var(--ink)}
+.pager a:hover{border-color:var(--mark);text-decoration:none}
+.pager s{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--faint);text-decoration:none;margin-bottom:3px}
+.pager .rt{text-align:right}
+
+/* главная */
+.hero{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:38px 40px;margin:0 0 24px}
+.hero h1{margin:0 0 12px;font-size:34px;line-height:1.18;font-weight:750;letter-spacing:-.7px;max-width:19ch}
+.hero p{margin:0 0 8px;font-size:17px;color:var(--ink2);max-width:64ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px}
+.slab{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:19px 21px}
+.slab h3{margin:0 0 4px;font-size:15.5px;font-weight:700}
+.slab h3 a{color:var(--ink)}
+.slab h3 a:hover{color:var(--mark);text-decoration:none}
+.slab p{margin:0 0 11px;font-size:13.6px;color:var(--faint)}
+.slab ul{list-style:none;margin:0;padding:0;font-size:13.8px}
+.slab li{margin:0 0 4px;padding-left:13px;position:relative}
+.slab li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--edge)}
+
+/* рекламное место, ровно одно на страницу */
+.promo{margin:0 0 24px}
+.promo span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+color:var(--faint);margin-bottom:5px}
+.promo img{display:block;width:100%;height:auto;border-radius:9px;border:1px solid var(--edge)}
+
+.base{border-top:1px solid var(--edge);background:var(--sheet);margin-top:auto}
+.base .in2{max-width:1360px;margin:0 auto;padding:20px 22px;display:flex;gap:16px;
+align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
+.base a{color:var(--ink2)}
+.base .rt{margin-left:auto}
+
+@media (max-width:1160px){
+.wrap{grid-template-columns:230px minmax(0,1fr);gap:26px}
+.strip{display:none}}
+@media (max-width:860px){
+.wrap{grid-template-columns:1fr;padding:18px 15px 46px}
+.side{position:static;max-height:none;border-bottom:1px solid var(--edge);padding-bottom:14px}
+.doc{padding:24px 20px 30px}
+.doc h1{font-size:25px}
+.hero{padding:26px 22px}
+.hero h1{font-size:27px}
+.hdr .in2{padding:0 15px;gap:12px}
+.hnav a{padding:6px 8px;font-size:13px}}
+</style></head><body>
+<header class="hdr"><div class="in2">
+<a class="brand" href="/">Wirebound <em>client reference</em></a>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a><a href="/cli/">Command line</a><a href="/os/" aria-current="true">Runtime and machine</a></nav>
+<button class="skin" type="button" id="sk">theme</button>
+</div></header>
+<div class="wrap">
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/" aria-current="page">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/os/">Runtime and machine</a></p><h1>Environment variables: exact precedence and the casing problem</h1><p class="stand">There is no standard here, only a widespread convention that every implementation follows slightly differently. This page is the convention plus the known deviations.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><h2 id="the-variables">The variables</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Variable</th><th>Applies to</th></tr></thead><tbody><tr><td><code>http_proxy</code></td><td>plain http targets</td></tr><tr><td><code>https_proxy</code></td><td>encrypted targets</td></tr><tr><td><code>all_proxy</code></td><td>everything, where supported</td></tr><tr><td><code>no_proxy</code></td><td>the bypass list</td></tr><tr><td><code>ftp_proxy</code></td><td>ftp, rarely relevant now</td></tr></tbody></table></div>
+<p>Each also exists in upper case, and the two are not interchangeable.</p>
+<h2 id="why-both-cases-exist">Why both cases exist</h2>
+<p><code>HTTP_PROXY</code> in upper case collides with a CGI convention: a request header called <code>Proxy</code> arrives in a CGI environment as <code>HTTP_PROXY</code>. That means a remote visitor could set it by sending a header, and a server-side script reading it would route its own outbound traffic wherever the visitor said.</p>
+<p>This was a real vulnerability, and the consequence is a permanent split:</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Tool</th><th>Reads</th></tr></thead><tbody><tr><td>curl</td><td>lowercase <code>http_proxy</code> only, both cases for <code>https_proxy</code></td></tr><tr><td>Python requests</td><td>both, lowercase wins where both are set</td></tr><tr><td>Node global fetch</td><td>neither</td></tr><tr><td>Go</td><td>both, and rejects <code>HTTP_PROXY</code> when it detects a CGI environment</td></tr><tr><td>Java</td><td>its own system properties, not these at all</td></tr></tbody></table></div>
+<p>The safe habit: <strong>set both cases to the same value</strong>, and never rely on which one wins.</p>
+<pre><code>export http_proxy="http://198.51.100.14:8080"
+export https_proxy="$http_proxy"
+export HTTP_PROXY="$http_proxy"
+export HTTPS_PROXY="$http_proxy"
+export no_proxy="localhost,127.0.0.1,::1"
+export NO_PROXY="$no_proxy"</code></pre>
+<h2 id="precedence-in-general">Precedence, in general</h2>
+<p>Nearly every client follows this order, and where one deviates the per-client page says so.</p>
+<ol><li>A value passed explicitly in code, per call</li><li>A value set on the client or session object</li><li>Environment variables</li><li>Nothing, which means direct</li></ol>
+<p>The important exception is <code>requests</code>, where the environment beats the session dictionary unless you turn it off. That inversion is the single most surprising precedence rule in this reference.</p>
+<div class="warn"><b>`https_proxy` usually holds an `http://` url</b><p>The variable name describes the target scheme; the value describes how to reach the hop. <code>https_proxy=http://...</code> is normal and correct. <code>https_proxy=https://...</code> means the hop itself speaks TLS to you, which is rare.</p></div>
+<h2 id="finding-out-what-is-actually-set">Finding out what is actually set</h2>
+<pre><code>env | grep -i proxy</code></pre>
+<p>Run it as the user and in the environment the job actually uses. A variable set in your interactive shell profile is invisible to cron, to a unit file, and to a container, and the reverse is also true.</p>
+<p>For a running process:</p>
+<pre><code>tr '\0' '\n' &lt; /proc/$(pgrep -f moj-skript)/environ | grep -i proxy</code></pre>
+<p>That reads what the process actually received at start, which is the only version that matters and is often not what you assumed.</p>
+<h2 id="where-they-come-from-and-where-they-do-not">Where they come from and where they do not</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Set in</th><th>Applies to</th></tr></thead><tbody><tr><td><code>~/.bashrc</code>, <code>~/.profile</code></td><td>interactive shells only</td></tr><tr><td><code>/etc/environment</code></td><td>most login sessions, not cron on every system</td></tr><tr><td>a unit file <code>Environment=</code></td><td>that service only</td></tr><tr><td><code>docker run --env-file</code></td><td>that container only</td></tr><tr><td>a <code>.env</code> file</td><td>only if something loads it, nothing does automatically</td></tr></tbody></table></div>
+<p>The cron case catches people constantly and has its own page.</p>
+<h2 id="turning-them-off">Turning them off</h2>
+<p>Because a stray variable can silently redirect a job, unattended work is usually better off ignoring the environment and setting everything explicitly:</p>
+<pre><code>s = requests.Session(); s.trust_env = False       # Python requests
+c = httpx.Client(trust_env=False)                 # httpx
+client = axios.create({ proxy: false })           # axios с агентами</code></pre>
+<p>Then nothing a shell profile does can change how the run behaves, which is what you want for something that must produce the same result every night.</p>
+<h2 id="confirming-which-one-won">Confirming which one won</h2>
+<p>The only reliable check is to ask where the traffic came out:</p>
+<pre><code>curl -s https://api.ipify.org; echo</code></pre>
+<p>with no flags at all. That answer is the environment's answer, and comparing it against your machine's own address tells you in one line whether anything is in effect.</p><div class="pager"><a href="/cli/ssh-tunnels/"><s>Previous</s>ssh</a><a class="rt" href="/os/no-proxy-rules/"><s>Next</s>The bypass list</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-variables">The variables</a><a href="#why-both-cases-exist">Why both cases exist</a><a href="#precedence-in-general">Precedence, in general</a><a href="#finding-out-what-is-actually-set">Finding out what is actually set</a><a href="#where-they-come-from-and-where-they-do-not">Where they come from and where they do not</a><a href="#turning-them-off">Turning them off</a><a href="#confirming-which-one-won">Confirming which one won</a></aside>
+</div>
+<footer class="base"><div class="in2"><span>Wirebound</span>
+<a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>
+<span class="rt">38 pages</span></div></footer>
+<script>
+(function(){var K="wb-skin",d=document.documentElement,v=null;
+try{v=localStorage.getItem(K)}catch(e){}
+if(v)d.setAttribute("data-skin",v);
+var b=document.getElementById("sk");if(b)b.addEventListener("click",function(){
+var c=d.getAttribute("data-skin")==="day"?"night":"day";
+d.setAttribute("data-skin",c);try{localStorage.setItem(K,c)}catch(e){}});})();
+</script></body></html>

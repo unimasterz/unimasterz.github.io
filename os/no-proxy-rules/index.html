@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>node-fetch: still an agent, still not the same as fetch | Wirebound</title>
-<meta name="description" content="node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.">
-<link rel="canonical" href="https://unimasterz.github.io/node/node-fetch/">
-<meta property="og:title" content="node-fetch: still an agent, still not the same as fetch | Wirebound">
-<meta property="og:description" content="node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.">
-<meta property="og:url" content="https://unimasterz.github.io/node/node-fetch/">
+<title>The bypass list: what actually matches and what silently does not | Wirebound</title>
+<meta name="description" content="The bypass list has no standard. Leading dots, subdomains, ports, CIDR and the wildcard all behave differently between implementations, and this is the table.">
+<link rel="canonical" href="https://unimasterz.github.io/os/no-proxy-rules/">
+<meta property="og:title" content="The bypass list: what actually matches and what silently does not | Wirebound">
+<meta property="og:description" content="The bypass list has no standard. Leading dots, subdomains, ports, CIDR and the wildcard all behave differently between implementations, and this is the table.">
+<meta property="og:url" content="https://unimasterz.github.io/os/no-proxy-rules/">
 <meta property="og:site_name" content="Wirebound">
 <meta name="color-scheme" content="light dark">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"node-fetch: still an agent, still not the same as fetch","description":"node-fetch takes an agent, not a dispatcher, and its agent option can be a function. Why code that works here does nothing on global fetch, and vice versa.","url":"https://unimasterz.github.io/node/node-fetch/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"The bypass list: what actually matches and what silently does not","description":"The bypass list has no standard. Leading dots, subdomains, ports, CIDR and the wildcard all behave differently between implementations, and this is the table.","url":"https://unimasterz.github.io/os/no-proxy-rules/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{
@@ -164,49 +164,39 @@ align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
 </style></head><body>
 <header class="hdr"><div class="in2">
 <a class="brand" href="/">Wirebound <em>client reference</em></a>
-<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/" aria-current="true">Node.js</a><a href="/cli/">Command line</a><a href="/os/">Runtime and machine</a></nav>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a><a href="/cli/">Command line</a><a href="/os/" aria-current="true">Runtime and machine</a></nav>
 <button class="skin" type="button" id="sk">theme</button>
 </div></header>
 <div class="wrap">
-<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/" aria-current="page">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
-<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/node/">Node.js</a></p><h1>node-fetch: still an agent, still not the same as fetch</h1><p class="stand">The package and the built-in have the same name and different mechanisms, which is the source of most of the confusion in Node. Tested against node-fetch 3.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: private proxies for collection and automation work" width="1140" height="150" loading="lazy"></a></div><h2 id="the-five-answers">The five answers</h2>
-<div class="tblwrap"><table class="tbl"><thead><tr><th>Question</th><th>Answer for node-fetch</th></tr></thead><tbody><tr><td>Where the setting goes</td><td><code>agent</code>, per call or as a function</td></tr><tr><td>Environment override</td><td class="no">no</td></tr><tr><td>Who resolves the name</td><td>your machine</td></tr><tr><td>Certificates</td><td>verified against the real target</td></tr><tr><td>The trap</td><td><code>agent</code> and <code>dispatcher</code> are not interchangeable</td></tr></tbody></table></div>
-<h2 id="the-setting">The setting</h2>
-<pre><code>import fetch from "node-fetch";
-import { HttpsProxyAgent } from "https-proxy-agent";</code></pre>
-<p>const agent = new HttpsProxyAgent("http://user:pass@198.51.100.14:8080");</p>
-<p>const r = await fetch("https://example.com", { agent }); ```</p>
-<p>Note the key: <code>agent</code>, not <code>dispatcher</code>. Code copied from an undici example does nothing here, and code copied from here does nothing on global fetch. Both fail silently by going direct.</p>
-<div class="warn"><b>Two fetches, two mechanisms</b><p><code>import fetch from "node-fetch"</code> wants <code>agent</code>. Global <code>fetch</code> wants <code>dispatcher</code>. A project that has both, or that removed the import at some point and kept the options, will go direct without a word. Check which one you are actually calling.</p></div>
-<h2 id="the-agent-as-a-function">The agent as a function</h2>
-<p>node-fetch accepts a function, which is how you handle both protocols and a bypass in one place:</p>
-<pre><code>const httpAgent  = new HttpProxyAgent(line);
-const httpsAgent = new HttpsProxyAgent(line);</code></pre>
-<p>const vybrat = (parsedUrl) =&gt; {   if (parsedUrl.hostname.endsWith(".internal")) return undefined;   // напрямую   return parsedUrl.protocol === "http:" ? httpAgent : httpsAgent; };</p>
-<p>const r = await fetch(url, { agent: vybrat }); ```</p>
-<p>Returning <code>undefined</code> means direct. This is the neatest bypass mechanism of the Node clients, because it is a plain function instead of a matching string.</p>
-<h2 id="wrapping-it-once">Wrapping it once</h2>
-<p>Passing <code>agent</code> at every call site guarantees one gets forgotten. Wrap instead:</p>
-<pre><code>const nashFetch = (url, opt = {}) =&gt;
-  fetch(url, { agent: vybrat, ...opt });</code></pre>
-<p>Put the spread after so a caller can still override deliberately.</p>
-<h2 id="timeouts">Timeouts</h2>
-<p>node-fetch 3 removed the <code>timeout</code> option. Use a signal:</p>
-<pre><code>const r = await fetch(url, {
-  agent: vybrat,
-  signal: AbortSignal.timeout(30_000),
-});</code></pre>
-<p>This bounds the whole call, which is what you want. Guides written for node-fetch 2 still show <code>timeout: 30000</code>, and it is silently ignored in 3.</p>
-<h2 id="redirects">Redirects</h2>
-<pre><code>const r = await fetch(url, { agent: vybrat, redirect: "follow", follow: 5 });</code></pre>
-<p>The agent function is consulted again for each hop, so a redirect from https to http picks the right agent automatically, and a redirect to an internal host correctly goes direct. That is the payoff for the function form.</p>
-<h2 id="should-you-still-use-it">Should you still use it</h2>
-<p>For new code, global fetch with undici covers most of what this package was for, and it is one fewer dependency.</p>
-<p>node-fetch still earns its place in two cases: the agent function, which has no clean equivalent on global fetch, and existing code where switching mechanisms means touching every call site.</p>
-<h2 id="confirming-it-works">Confirming it works</h2>
-<pre><code>const r = await nashFetch("https://api.ipify.org");
-console.log("node-fetch выходит через", (await r.text()).trim());</code></pre>
-<p>If your project has both fetches, run the check through the same wrapper your real code uses. Testing the one you are not calling is exactly how this problem survives.</p><div class="pager"><a href="/node/got/"><s>Previous</s>got</a><a class="rt" href="/node/playwright-node/"><s>Next</s>Playwright</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-five-answers">The five answers</a><a href="#the-setting">The setting</a><a href="#the-agent-as-a-function">The agent as a function</a><a href="#wrapping-it-once">Wrapping it once</a><a href="#timeouts">Timeouts</a><a href="#redirects">Redirects</a><a href="#should-you-still-use-it">Should you still use it</a><a href="#confirming-it-works">Confirming it works</a></aside>
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/" aria-current="page">The bypass list</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/os/">Runtime and machine</a></p><h1>The bypass list: what actually matches and what silently does not</h1><p class="stand"><code>no_proxy</code> is the setting most likely to work on your machine and fail on the server, because every implementation invented its own matching rules. Here they are, side by side.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network IPv4 plans: pick a pool size, try it for two hours" width="1140" height="150" loading="lazy"></a></div><h2 id="the-problem-in-one-line">The problem in one line</h2>
+<p>There is no specification for <code>no_proxy</code>. Every client implemented what seemed reasonable, and they disagree about almost everything.</p>
+<h2 id="what-the-forms-mean-by-implementation">What the forms mean, by implementation</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Entry</th><th>curl</th><th>Python requests</th><th>Go</th><th>Node axios</th></tr></thead><tbody><tr><td><code>example.com</code></td><td>host and subdomains</td><td>host and subdomains</td><td>host only</td><td>host and subdomains</td></tr><tr><td><code>.example.com</code></td><td>subdomains, and the host</td><td>subdomains, and the host</td><td>subdomains only</td><td>subdomains</td></tr><tr><td><code>*.example.com</code></td><td class="no">no</td><td class="no">no</td><td><strong>yes</strong></td><td class="no">no</td></tr><tr><td><code>*</code></td><td><strong>yes</strong>, disables everything</td><td class="yes">yes</td><td class="yes">yes</td><td class="yes">yes</td></tr><tr><td><code>example.com:8080</code></td><td>port respected</td><td>port respected</td><td>port respected</td><td>usually ignored</td></tr><tr><td><code>10.0.0.0/8</code></td><td><strong>yes</strong></td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr><tr><td><code>10.0.0.1</code></td><td>exact address</td><td>exact address</td><td>exact address</td><td>exact address</td></tr></tbody></table></div>
+<p>The two rows worth memorising: CIDR notation works in curl and nowhere else in this table, and the <code>*.</code> wildcard works in Go and not in the others.</p>
+<div class="warn"><b>A bare domain does not always cover subdomains</b><p>In Go, <code>no_proxy=example.com</code> does <strong>not</strong> match <code>api.example.com</code>. In curl and requests it does. This single difference accounts for a large share of "it bypasses on my laptop and not on the server" reports.</p></div>
+<p>The portable form is to list both:</p>
+<pre><code>export no_proxy="example.com,.example.com,localhost,127.0.0.1,::1"</code></pre>
+<p>Verbose and it behaves the same everywhere.</p>
+<h2 id="things-that-catch-people">Things that catch people</h2>
+<p><strong>Spaces after commas.</strong> Some implementations trim, some treat the space as part of the hostname. Write the list with no spaces.</p>
+<p><strong>Uppercase.</strong> Matching is case insensitive for hostnames in most implementations, but not all handle an uppercase entry the same way. Keep entries lowercase.</p>
+<p><strong>Addresses versus names.</strong> An entry of <code>10.0.0.5</code> does not match a request to <code>internal.example</code> even if that name resolves to <code>10.0.0.5</code>. Matching happens on the string in the url, before resolution. If you reach a host by name, put the name in the list.</p>
+<p><strong>IPv6.</strong> Needs <code>::1</code> explicitly; <code>localhost</code> does not always cover it.</p>
+<p><strong>The empty value.</strong> <code>no_proxy=""</code> means an empty list in most implementations, and in a few it means something is set. If you want no bypass, unset the variable.</p>
+<h2 id="clients-with-no-bypass-at-all">Clients with no bypass at all</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Client</th><th>Bypass</th></tr></thead><tbody><tr><td>Node global fetch with undici</td><td>none, route in code</td></tr><tr><td>got</td><td>none, route in code</td></tr><tr><td>urllib3 directly</td><td>none</td></tr><tr><td>Puppeteer, Playwright</td><td>Chrome's own list, different syntax</td></tr></tbody></table></div>
+<p>Chrome's list uses semicolons in Puppeteer's flag and commas in Playwright's option, for the same underlying feature. It also has its own tokens, notably <code>&lt;-loopback&gt;</code>.</p>
+<h2 id="testing-yours">Testing yours</h2>
+<p>Do not reason about it. Ask:</p>
+<pre><code>for h in example.com api.example.com localhost 10.0.0.5; do
+  printf '%-20s ' "$h"
+  curl -s -o /dev/null -w "%{http_code}\n" -m 8 "http://$h/" 2&gt;/dev/null || echo "нет"
+done</code></pre>
+<p>Better, ask an echo service through each name you care about and compare the answers. Whichever hosts report your own address are bypassing; the rest are not.</p>
+<h2 id="the-habit-that-avoids-all-of-this">The habit that avoids all of this</h2>
+<p>For anything unattended, do not use the bypass list. Route explicitly in code: one client configured, one not, and the call site picks.</p>
+<p>It is more typing and it behaves identically on every machine, in every language, forever. The bypass list is convenient for interactive use and is a portability trap in a scheduled job.</p><div class="pager"><a href="/os/environment-precedence/"><s>Previous</s>Environment variables</a><a class="rt" href="/os/cron-and-schedulers/"><s>Next</s>cron and schedulers</a></div></article><aside class="strip"><h4>On this page</h4><a href="#the-problem-in-one-line">The problem in one line</a><a href="#what-the-forms-mean-by-implementation">What the forms mean, by implementation</a><a href="#things-that-catch-people">Things that catch people</a><a href="#clients-with-no-bypass-at-all">Clients with no bypass at all</a><a href="#testing-yours">Testing yours</a><a href="#the-habit-that-avoids-all-of-this">The habit that avoids all of this</a></aside>
 </div>
 <footer class="base"><div class="in2"><span>Wirebound</span>
 <a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>

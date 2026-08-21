@@ -4,6 +4,8 @@
   <url><loc>https://unimasterz.github.io/start/</loc></url>
   <url><loc>https://unimasterz.github.io/python/</loc></url>
   <url><loc>https://unimasterz.github.io/node/</loc></url>
+  <url><loc>https://unimasterz.github.io/cli/</loc></url>
+  <url><loc>https://unimasterz.github.io/os/</loc></url>
   <url><loc>https://unimasterz.github.io/start/how-this-was-tested/</loc></url>
   <url><loc>https://unimasterz.github.io/start/what-goes-wrong-first/</loc></url>
   <url><loc>https://unimasterz.github.io/start/reading-a-connection-line/</loc></url>
@@ -19,4 +21,11 @@
   <url><loc>https://unimasterz.github.io/node/node-fetch/</loc></url>
   <url><loc>https://unimasterz.github.io/node/playwright-node/</loc></url>
   <url><loc>https://unimasterz.github.io/node/puppeteer/</loc></url>
+  <url><loc>https://unimasterz.github.io/cli/curl/</loc></url>
+  <url><loc>https://unimasterz.github.io/cli/wget/</loc></url>
+  <url><loc>https://unimasterz.github.io/cli/git/</loc></url>
+  <url><loc>https://unimasterz.github.io/cli/ssh-tunnels/</loc></url>
+  <url><loc>https://unimasterz.github.io/os/environment-precedence/</loc></url>
+  <url><loc>https://unimasterz.github.io/os/no-proxy-rules/</loc></url>
+  <url><loc>https://unimasterz.github.io/os/cron-and-schedulers/</loc></url>
 </urlset>
