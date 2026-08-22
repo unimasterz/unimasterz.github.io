@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Docker: build time and run time are separate problems | Wirebound</title>
+<meta name="description" content="Build time and run time are separate problems with separate mechanisms, and a build argument with credentials is recorded in the image forever.">
+<link rel="canonical" href="https://unimasterz.github.io/os/docker-build-and-run/">
+<meta property="og:title" content="Docker: build time and run time are separate problems | Wirebound">
+<meta property="og:description" content="Build time and run time are separate problems with separate mechanisms, and a build argument with credentials is recorded in the image forever.">
+<meta property="og:url" content="https://unimasterz.github.io/os/docker-build-and-run/">
+<meta property="og:site_name" content="Wirebound">
+<meta name="color-scheme" content="light dark">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Docker: build time and run time are separate problems","description":"Build time and run time are separate problems with separate mechanisms, and a build argument with credentials is recorded in the image forever.","url":"https://unimasterz.github.io/os/docker-build-and-run/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+--sheet:#ffffff;--page:#f4f6f9;--sunk:#eaeef4;
+--ink:#16181d;--ink2:#4a515e;--faint:#79818f;
+--edge:#dbe1ea;--edge2:#eef1f6;
+--mark:#a3182b;--mark2:#c8395079;--warn:#8a5a04;--warnbg:#fdf6e6;--warnedge:#eddcae;
+--code:#f5f7fa;--codeedge:#e3e8f0;
+--rad:5px;
+--sans:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+--mono:"Cascadia Mono",Consolas,"DejaVu Sans Mono",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-skin="day"]){
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}}
+:root[data-skin="night"]{
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);
+font:400 15.5px/1.62 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--mark);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--mark);outline-offset:2px;border-radius:3px}
+
+/* шапка */
+.hdr{background:var(--sheet);border-bottom:1px solid var(--edge);position:sticky;top:0;z-index:20}
+.hdr .in2{max-width:1360px;margin:0 auto;padding:0 22px;height:54px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:16.5px;color:var(--ink);letter-spacing:-.2px}
+.brand em{font-style:normal;font-weight:400;font-size:12px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
+.hnav{display:flex;gap:3px;margin-left:auto}
+.hnav a{padding:6px 11px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;font-weight:500}
+.hnav a:hover{background:var(--sunk);text-decoration:none;color:var(--ink)}
+.hnav a[aria-current]{color:var(--mark);background:var(--sunk)}
+.skin{border:1px solid var(--edge);background:transparent;color:var(--ink2);
+border-radius:var(--rad);padding:5px 10px;font:500 12.5px var(--sans);cursor:pointer}
+.skin:hover{background:var(--sunk)}
+
+/* каркас */
+.wrap{max-width:1360px;margin:0 auto;padding:26px 22px 60px;display:grid;
+grid-template-columns:250px minmax(0,1fr) 196px;gap:34px;align-items:start}
+.side{position:sticky;top:78px;max-height:calc(100vh - 100px);overflow:auto;padding-right:6px}
+.side h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.side ol{list-style:none;margin:0 0 18px;padding:0}
+.side li{margin:0}
+.side li a{display:block;padding:4px 9px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;
+border-left:2px solid transparent}
+.side li a:hover{background:var(--sunk);color:var(--ink);text-decoration:none}
+.side li a[aria-current]{color:var(--mark);border-left-color:var(--mark);background:var(--sunk);font-weight:600}
+
+.doc{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:34px 40px 42px;min-width:0}
+.crumb{font-size:12.5px;color:var(--faint);margin:0 0 12px}
+.crumb a{color:var(--faint)}
+.doc h1{margin:0 0 10px;font-size:29px;line-height:1.22;font-weight:750;letter-spacing:-.5px;text-wrap:balance}
+.doc h2{margin:36px 0 12px;font-size:20px;font-weight:700;letter-spacing:-.2px;
+padding-bottom:7px;border-bottom:1px solid var(--edge2);scroll-margin-top:74px}
+.doc h3{margin:26px 0 8px;font-size:16px;font-weight:700;scroll-margin-top:74px}
+.doc p{margin:0 0 15px;max-width:73ch}
+.doc ul,.doc ol{margin:0 0 15px;padding-left:22px;max-width:71ch}
+.doc li{margin:0 0 6px}
+.stand{font-size:16.5px;color:var(--ink2);margin:0 0 24px;max-width:66ch;line-height:1.6}
+
+/* таблица-справка */
+.tbl{width:100%;border-collapse:collapse;margin:0 0 20px;font-size:13.8px;display:table}
+.tblwrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--edge);border-radius:8px}
+.tblwrap .tbl{margin:0;border:0}
+.tbl th{text-align:left;padding:9px 13px;background:var(--sunk);font-weight:700;font-size:12px;
+letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--edge)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--edge2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{white-space:nowrap;font-family:var(--mono);font-size:12.8px;color:var(--ink)}
+.tbl .yes{color:var(--mark);font-weight:700}
+.tbl .no{color:var(--faint)}
+
+/* код */
+pre{margin:0 0 18px;background:var(--code);border:1px solid var(--codeedge);border-radius:8px;
+padding:14px 16px;overflow-x:auto;font:13.2px/1.55 var(--mono)}
+code{font-family:var(--mono);font-size:.905em}
+p code,li code,td code{background:var(--code);border:1px solid var(--codeedge);
+border-radius:4px;padding:1px 5px}
+
+/* врезки */
+.warn,.tip{border:1px solid var(--warnedge);background:var(--warnbg);border-radius:8px;
+padding:13px 16px;margin:0 0 18px;font-size:14.4px}
+.warn b,.tip b{display:block;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--warn);margin-bottom:4px}
+.tip{border-color:var(--edge);background:var(--sunk)}
+.tip b{color:var(--faint)}
+.warn p:last-child,.tip p:last-child{margin-bottom:0}
+
+/* правая полоса */
+.strip{position:sticky;top:78px;font-size:13px}
+.strip h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.strip a{display:block;padding:3px 0 3px 10px;color:var(--ink2);border-left:2px solid var(--edge)}
+.strip a:hover{color:var(--mark);border-left-color:var(--mark2);text-decoration:none}
+
+/* низ статьи */
+.pager{display:flex;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--edge2)}
+.pager a{flex:1;border:1px solid var(--edge);border-radius:8px;padding:11px 14px;color:var(--ink)}
+.pager a:hover{border-color:var(--mark);text-decoration:none}
+.pager s{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--faint);text-decoration:none;margin-bottom:3px}
+.pager .rt{text-align:right}
+
+/* главная */
+.hero{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:38px 40px;margin:0 0 24px}
+.hero h1{margin:0 0 12px;font-size:34px;line-height:1.18;font-weight:750;letter-spacing:-.7px;max-width:19ch}
+.hero p{margin:0 0 8px;font-size:17px;color:var(--ink2);max-width:64ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px}
+.slab{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:19px 21px}
+.slab h3{margin:0 0 4px;font-size:15.5px;font-weight:700}
+.slab h3 a{color:var(--ink)}
+.slab h3 a:hover{color:var(--mark);text-decoration:none}
+.slab p{margin:0 0 11px;font-size:13.6px;color:var(--faint)}
+.slab ul{list-style:none;margin:0;padding:0;font-size:13.8px}
+.slab li{margin:0 0 4px;padding-left:13px;position:relative}
+.slab li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--edge)}
+
+/* рекламное место, ровно одно на страницу */
+.promo{margin:0 0 24px}
+.promo span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+color:var(--faint);margin-bottom:5px}
+.promo img{display:block;width:100%;height:auto;border-radius:9px;border:1px solid var(--edge)}
+
+.base{border-top:1px solid var(--edge);background:var(--sheet);margin-top:auto}
+.base .in2{max-width:1360px;margin:0 auto;padding:20px 22px;display:flex;gap:16px;
+align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
+.base a{color:var(--ink2)}
+.base .rt{margin-left:auto}
+
+@media (max-width:1160px){
+.wrap{grid-template-columns:230px minmax(0,1fr);gap:26px}
+.strip{display:none}}
+@media (max-width:860px){
+.wrap{grid-template-columns:1fr;padding:18px 15px 46px}
+.side{position:static;max-height:none;border-bottom:1px solid var(--edge);padding-bottom:14px}
+.doc{padding:24px 20px 30px}
+.doc h1{font-size:25px}
+.hero{padding:26px 22px}
+.hero h1{font-size:27px}
+.hdr .in2{padding:0 15px;gap:12px}
+.hnav a{padding:6px 8px;font-size:13px}}
+</style></head><body>
+<header class="hdr"><div class="in2">
+<a class="brand" href="/">Wirebound <em>client reference</em></a>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a><a href="/cli/">Command line</a><a href="/lang/">Other runtimes</a><a href="/os/" aria-current="true">Runtime and machine</a><a href="/tools/">Everyday tools</a><a href="/traps/">Traps worth knowing</a></nav>
+<button class="skin" type="button" id="sk">theme</button>
+</div></header>
+<div class="wrap">
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Other runtimes</h4><ol><li><a href="/lang/go-net-http/">Go</a></li><li><a href="/lang/java-httpclient/">Java</a></li><li><a href="/lang/php-guzzle-curl/">PHP</a></li><li><a href="/lang/dotnet-httpclient/">C#</a></li><li><a href="/lang/rust-reqwest/">Rust</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/systemd-units/">systemd</a></li><li><a href="/os/docker-build-and-run/" aria-current="page">Docker</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li><li><a href="/os/windows-winhttp/">Windows</a></li></ol><h4>Everyday tools</h4><ol><li><a href="/tools/pip-and-python-tooling/">pip, poetry, uv</a></li><li><a href="/tools/npm-yarn-pnpm/">npm, yarn, pnpm</a></li><li><a href="/tools/apt-and-linux-packages/">apt, dnf, apk</a></li><li><a href="/tools/ffmpeg-and-media-tools/">ffmpeg and media downloaders</a></li></ol><h4>Traps worth knowing</h4><ol><li><a href="/traps/who-resolves-the-name/">Who resolves the name, and how to prove which side did</a></li><li><a href="/traps/tunnel-and-certificates/">What a tunnel does to certificate checking</a></li><li><a href="/traps/keep-alive-across-a-hop/">Connection reuse</a></li><li><a href="/traps/redirects-and-lost-settings/">Redirects, retries, and settings that fall off on the way</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/os/">Runtime and machine</a></p><h1>Docker: build time and run time are separate problems</h1><p class="stand">Two questions people ask as one. The container needs settings while installing packages, and your program needs them while running. Different mechanisms, different risks.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/products/buy-ipv4-proxy" rel="sponsored noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: private datacenter IPv4, unmetered traffic, two hour trial" width="1140" height="150" loading="lazy"></a></div><h2 id="two-problems">Two problems</h2>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>When</th><th>Mechanism</th><th>Credential risk</th></tr></thead><tbody><tr><td>build</td><td><code>--build-arg</code>, or daemon config</td><td><strong>recorded in image history</strong></td></tr><tr><td>run</td><td><code>--env-file</code>, <code>-e</code></td><td>none if the file stays outside the image</td></tr></tbody></table></div>
+<p>Almost every confused question about this is really one of these two being answered with the other's mechanism.</p>
+<h2 id="run-time-which-is-what-most-jobs-need">Run time, which is what most jobs need</h2>
+<pre><code>docker run --rm --env-file ./hop.env moj-obraz</code></pre>
+<pre><code># hop.env, в .gitignore и не копируется в образ
+http_proxy=http://user:pass@198.51.100.14:8080
+https_proxy=http://user:pass@198.51.100.14:8080
+HTTP_PROXY=http://user:pass@198.51.100.14:8080
+HTTPS_PROXY=http://user:pass@198.51.100.14:8080
+no_proxy=localhost,127.0.0.1,::1</code></pre>
+<p>The file lives on the host, never enters the image, and can be changed without rebuilding.</p>
+<p>In compose:</p>
+<pre><code>services:
+  sbor:
+    image: moj-obraz
+    env_file: [./hop.env]</code></pre>
+<h2 id="build-time">Build time</h2>
+<pre><code>docker build \
+  --build-arg http_proxy=http://198.51.100.14:8080 \
+  --build-arg https_proxy=http://198.51.100.14:8080 \
+  -t moj-obraz .</code></pre>
+<p>These are recognised without being declared in the Dockerfile, and they apply to <code>RUN</code> steps so package installs work.</p>
+<div class="warn"><b>Never put credentials in a build argument</b><p>Build arguments are recorded in the image metadata. Anyone with the image can read them:</p></div>
+<pre><code>docker history --no-trunc moj-obraz | grep -i proxy</code></pre>
+<p>If the hop needs credentials at build time, use a bound address for the build machine, which most <a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener">IPv4 packages support alongside a login</a>, or a build secret, which is mounted for one step and not recorded:</p>
+<pre><code># syntax=docker/dockerfile:1.7
+RUN --mount=type=secret,id=hop \
+    export $(cat /run/secrets/hop | xargs) &amp;&amp; pip install -r requirements.txt</code></pre>
+<pre><code>docker build --secret id=hop,src=./hop.env -t moj-obraz .</code></pre>
+<h2 id="the-daemon-for-pulling-images">The daemon, for pulling images</h2>
+<p>Neither of the above affects <code>docker pull</code>. The daemon is a separate process with its own configuration:</p>
+<pre><code># /etc/systemd/system/docker.service.d/proxy.conf
+[Service]
+Environment="HTTP_PROXY=http://198.51.100.14:8080"
+Environment="HTTPS_PROXY=http://198.51.100.14:8080"
+Environment="NO_PROXY=localhost,127.0.0.1,registry.internal"</code></pre>
+<pre><code>sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart docker</code></pre>
+<p>Three separate places, and people routinely set one and expect all three to work.</p>
+<h2 id="the-networking-trap">The networking trap</h2>
+<p>A container has its own network view. If the hop is reachable only from the host, the container cannot see it no matter how correct the settings are.</p>
+<pre><code># проверять изнутри контейнера, не с хоста
+docker run --rm --env-file ./hop.env moj-obraz curl -s https://api.ipify.org</code></pre>
+<p>If that fails while the same command works on the host, the problem is reachability, not configuration. Options: host networking, or a hop address the container can actually reach.</p>
+<p><code>localhost</code> inside a container means the container, not the host. A hop on <code>127.0.0.1:3128</code> on the host is invisible; use <code>host.docker.internal</code> or the host's real address.</p>
+<h2 id="a-dockerfile-that-behaves-in-both-worlds">A Dockerfile that behaves in both worlds</h2>
+<pre><code>FROM python:3.12-slim</code></pre>
+<p>ARG http_proxy ARG https_proxy ARG no_proxy</p>
+<p>WORKDIR /app COPY requirements.txt . RUN pip install --no-cache-dir -r requirements.txt</p>
+<p>COPY . .</p>
+<p># сборочные значения не должны протечь в работу ENV http_proxy= https_proxy= no_proxy=</p>
+<p>CMD ["python", "katalog.py"] ```</p>
+<p>That last <code>ENV</code> line clears the build values so the running container uses only what you pass at run time. Without it, a build argument can linger and quietly override your run time file.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>docker run --rm --env-file ./hop.env moj-obraz \
+  sh -c 'env | grep -i proxy; curl -s https://api.ipify.org; echo'</code></pre>
+<p>Prints the settings the container actually received and where its traffic comes out, in one command. Run it before trusting a scheduled container.</p><div class="pager"><a href="/os/systemd-units/"><s>Previous</s>systemd</a><a class="rt" href="/os/cron-and-schedulers/"><s>Next</s>cron and schedulers</a></div></article><aside class="strip"><h4>On this page</h4><a href="#two-problems">Two problems</a><a href="#run-time-which-is-what-most-jobs-need">Run time, which is what most jobs need</a><a href="#build-time">Build time</a><a href="#the-daemon-for-pulling-images">The daemon, for pulling images</a><a href="#the-networking-trap">The networking trap</a><a href="#a-dockerfile-that-behaves-in-both-worlds">A Dockerfile that behaves in both worlds</a><a href="#confirming-it-works">Confirming it works</a></aside>
+</div>
+<footer class="base"><div class="in2"><span>Wirebound</span>
+<a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>
+<span class="rt">38 pages</span></div></footer>
+<script>
+(function(){var K="wb-skin",d=document.documentElement,v=null;
+try{v=localStorage.getItem(K)}catch(e){}
+if(v)d.setAttribute("data-skin",v);
+var b=document.getElementById("sk");if(b)b.addEventListener("click",function(){
+var c=d.getAttribute("data-skin")==="day"?"night":"day";
+d.setAttribute("data-skin",c);try{localStorage.setItem(K,c)}catch(e){}});})();
+</script></body></html>

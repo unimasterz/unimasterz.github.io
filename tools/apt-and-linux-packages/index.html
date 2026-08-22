@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>apt, dnf, apk: package traffic on a locked down box | Wirebound</title>
+<meta name="description" content="apt ignores your shell environment when run under sudo, dnf and apk keep their settings in their own config, and each needs the setting in a different file.">
+<link rel="canonical" href="https://unimasterz.github.io/tools/apt-and-linux-packages/">
+<meta property="og:title" content="apt, dnf, apk: package traffic on a locked down box | Wirebound">
+<meta property="og:description" content="apt ignores your shell environment when run under sudo, dnf and apk keep their settings in their own config, and each needs the setting in a different file.">
+<meta property="og:url" content="https://unimasterz.github.io/tools/apt-and-linux-packages/">
+<meta property="og:site_name" content="Wirebound">
+<meta name="color-scheme" content="light dark">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"apt, dnf, apk: package traffic on a locked down box","description":"apt ignores your shell environment when run under sudo, dnf and apk keep their settings in their own config, and each needs the setting in a different file.","url":"https://unimasterz.github.io/tools/apt-and-linux-packages/","inLanguage":"en","isPartOf":{"@type":"WebSite","name":"Wirebound","url":"https://unimasterz.github.io/"}}</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+--sheet:#ffffff;--page:#f4f6f9;--sunk:#eaeef4;
+--ink:#16181d;--ink2:#4a515e;--faint:#79818f;
+--edge:#dbe1ea;--edge2:#eef1f6;
+--mark:#a3182b;--mark2:#c8395079;--warn:#8a5a04;--warnbg:#fdf6e6;--warnedge:#eddcae;
+--code:#f5f7fa;--codeedge:#e3e8f0;
+--rad:5px;
+--sans:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+--mono:"Cascadia Mono",Consolas,"DejaVu Sans Mono",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-skin="day"]){
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}}
+:root[data-skin="night"]{
+--sheet:#171a20;--page:#101317;--sunk:#1d2129;
+--ink:#e6e9ee;--ink2:#a6aebc;--faint:#7d8695;
+--edge:#282e38;--edge2:#20252d;
+--mark:#f0768c;--mark2:#f0768c66;--warn:#e0b45c;--warnbg:#241d0f;--warnedge:#3d3116;
+--code:#12151a;--codeedge:#262c35;
+}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);
+font:400 15.5px/1.62 var(--sans);font-variant-numeric:tabular-nums}
+a{color:var(--mark);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--mark);outline-offset:2px;border-radius:3px}
+
+/* шапка */
+.hdr{background:var(--sheet);border-bottom:1px solid var(--edge);position:sticky;top:0;z-index:20}
+.hdr .in2{max-width:1360px;margin:0 auto;padding:0 22px;height:54px;display:flex;align-items:center;gap:22px}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:700;font-size:16.5px;color:var(--ink);letter-spacing:-.2px}
+.brand em{font-style:normal;font-weight:400;font-size:12px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase}
+.hnav{display:flex;gap:3px;margin-left:auto}
+.hnav a{padding:6px 11px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;font-weight:500}
+.hnav a:hover{background:var(--sunk);text-decoration:none;color:var(--ink)}
+.hnav a[aria-current]{color:var(--mark);background:var(--sunk)}
+.skin{border:1px solid var(--edge);background:transparent;color:var(--ink2);
+border-radius:var(--rad);padding:5px 10px;font:500 12.5px var(--sans);cursor:pointer}
+.skin:hover{background:var(--sunk)}
+
+/* каркас */
+.wrap{max-width:1360px;margin:0 auto;padding:26px 22px 60px;display:grid;
+grid-template-columns:250px minmax(0,1fr) 196px;gap:34px;align-items:start}
+.side{position:sticky;top:78px;max-height:calc(100vh - 100px);overflow:auto;padding-right:6px}
+.side h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.side ol{list-style:none;margin:0 0 18px;padding:0}
+.side li{margin:0}
+.side li a{display:block;padding:4px 9px;border-radius:var(--rad);color:var(--ink2);font-size:13.5px;
+border-left:2px solid transparent}
+.side li a:hover{background:var(--sunk);color:var(--ink);text-decoration:none}
+.side li a[aria-current]{color:var(--mark);border-left-color:var(--mark);background:var(--sunk);font-weight:600}
+
+.doc{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:34px 40px 42px;min-width:0}
+.crumb{font-size:12.5px;color:var(--faint);margin:0 0 12px}
+.crumb a{color:var(--faint)}
+.doc h1{margin:0 0 10px;font-size:29px;line-height:1.22;font-weight:750;letter-spacing:-.5px;text-wrap:balance}
+.doc h2{margin:36px 0 12px;font-size:20px;font-weight:700;letter-spacing:-.2px;
+padding-bottom:7px;border-bottom:1px solid var(--edge2);scroll-margin-top:74px}
+.doc h3{margin:26px 0 8px;font-size:16px;font-weight:700;scroll-margin-top:74px}
+.doc p{margin:0 0 15px;max-width:73ch}
+.doc ul,.doc ol{margin:0 0 15px;padding-left:22px;max-width:71ch}
+.doc li{margin:0 0 6px}
+.stand{font-size:16.5px;color:var(--ink2);margin:0 0 24px;max-width:66ch;line-height:1.6}
+
+/* таблица-справка */
+.tbl{width:100%;border-collapse:collapse;margin:0 0 20px;font-size:13.8px;display:table}
+.tblwrap{overflow-x:auto;margin:0 0 20px;border:1px solid var(--edge);border-radius:8px}
+.tblwrap .tbl{margin:0;border:0}
+.tbl th{text-align:left;padding:9px 13px;background:var(--sunk);font-weight:700;font-size:12px;
+letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--edge)}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--edge2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{white-space:nowrap;font-family:var(--mono);font-size:12.8px;color:var(--ink)}
+.tbl .yes{color:var(--mark);font-weight:700}
+.tbl .no{color:var(--faint)}
+
+/* код */
+pre{margin:0 0 18px;background:var(--code);border:1px solid var(--codeedge);border-radius:8px;
+padding:14px 16px;overflow-x:auto;font:13.2px/1.55 var(--mono)}
+code{font-family:var(--mono);font-size:.905em}
+p code,li code,td code{background:var(--code);border:1px solid var(--codeedge);
+border-radius:4px;padding:1px 5px}
+
+/* врезки */
+.warn,.tip{border:1px solid var(--warnedge);background:var(--warnbg);border-radius:8px;
+padding:13px 16px;margin:0 0 18px;font-size:14.4px}
+.warn b,.tip b{display:block;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--warn);margin-bottom:4px}
+.tip{border-color:var(--edge);background:var(--sunk)}
+.tip b{color:var(--faint)}
+.warn p:last-child,.tip p:last-child{margin-bottom:0}
+
+/* правая полоса */
+.strip{position:sticky;top:78px;font-size:13px}
+.strip h4{margin:0 0 7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.strip a{display:block;padding:3px 0 3px 10px;color:var(--ink2);border-left:2px solid var(--edge)}
+.strip a:hover{color:var(--mark);border-left-color:var(--mark2);text-decoration:none}
+
+/* низ статьи */
+.pager{display:flex;gap:12px;margin-top:34px;padding-top:20px;border-top:1px solid var(--edge2)}
+.pager a{flex:1;border:1px solid var(--edge);border-radius:8px;padding:11px 14px;color:var(--ink)}
+.pager a:hover{border-color:var(--mark);text-decoration:none}
+.pager s{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+color:var(--faint);text-decoration:none;margin-bottom:3px}
+.pager .rt{text-align:right}
+
+/* главная */
+.hero{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:38px 40px;margin:0 0 24px}
+.hero h1{margin:0 0 12px;font-size:34px;line-height:1.18;font-weight:750;letter-spacing:-.7px;max-width:19ch}
+.hero p{margin:0 0 8px;font-size:17px;color:var(--ink2);max-width:64ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px}
+.slab{background:var(--sheet);border:1px solid var(--edge);border-radius:9px;padding:19px 21px}
+.slab h3{margin:0 0 4px;font-size:15.5px;font-weight:700}
+.slab h3 a{color:var(--ink)}
+.slab h3 a:hover{color:var(--mark);text-decoration:none}
+.slab p{margin:0 0 11px;font-size:13.6px;color:var(--faint)}
+.slab ul{list-style:none;margin:0;padding:0;font-size:13.8px}
+.slab li{margin:0 0 4px;padding-left:13px;position:relative}
+.slab li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--edge)}
+
+/* рекламное место, ровно одно на страницу */
+.promo{margin:0 0 24px}
+.promo span{display:block;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+color:var(--faint);margin-bottom:5px}
+.promo img{display:block;width:100%;height:auto;border-radius:9px;border:1px solid var(--edge)}
+
+.base{border-top:1px solid var(--edge);background:var(--sheet);margin-top:auto}
+.base .in2{max-width:1360px;margin:0 auto;padding:20px 22px;display:flex;gap:16px;
+align-items:center;font-size:13px;color:var(--faint);flex-wrap:wrap}
+.base a{color:var(--ink2)}
+.base .rt{margin-left:auto}
+
+@media (max-width:1160px){
+.wrap{grid-template-columns:230px minmax(0,1fr);gap:26px}
+.strip{display:none}}
+@media (max-width:860px){
+.wrap{grid-template-columns:1fr;padding:18px 15px 46px}
+.side{position:static;max-height:none;border-bottom:1px solid var(--edge);padding-bottom:14px}
+.doc{padding:24px 20px 30px}
+.doc h1{font-size:25px}
+.hero{padding:26px 22px}
+.hero h1{font-size:27px}
+.hdr .in2{padding:0 15px;gap:12px}
+.hnav a{padding:6px 8px;font-size:13px}}
+</style></head><body>
+<header class="hdr"><div class="in2">
+<a class="brand" href="/">Wirebound <em>client reference</em></a>
+<nav class="hnav"><a href="/start/">Before the tables</a><a href="/python/">Python</a><a href="/node/">Node.js</a><a href="/cli/">Command line</a><a href="/lang/">Other runtimes</a><a href="/os/">Runtime and machine</a><a href="/tools/" aria-current="true">Everyday tools</a><a href="/traps/">Traps worth knowing</a></nav>
+<button class="skin" type="button" id="sk">theme</button>
+</div></header>
+<div class="wrap">
+<aside class="side"><h4>Before the tables</h4><ol><li><a href="/start/how-this-was-tested/">How every entry here was checked</a></li><li><a href="/start/what-goes-wrong-first/">The four things that break before anything else</a></li><li><a href="/start/reading-a-connection-line/">Anatomy of the line your provider hands you</a></li></ol><h4>Python</h4><ol><li><a href="/python/requests/">requests</a></li><li><a href="/python/httpx/">httpx</a></li><li><a href="/python/aiohttp/">aiohttp</a></li><li><a href="/python/urllib3/">urllib3</a></li><li><a href="/python/scrapy/">Scrapy</a></li><li><a href="/python/selenium-playwright-python/">Selenium and Playwright from Python</a></li></ol><h4>Node.js</h4><ol><li><a href="/node/global-fetch-undici/">Global fetch and undici</a></li><li><a href="/node/axios/">axios</a></li><li><a href="/node/got/">got</a></li><li><a href="/node/node-fetch/">node-fetch</a></li><li><a href="/node/playwright-node/">Playwright</a></li><li><a href="/node/puppeteer/">Puppeteer</a></li></ol><h4>Command line</h4><ol><li><a href="/cli/curl/">curl</a></li><li><a href="/cli/wget/">wget</a></li><li><a href="/cli/git/">git</a></li><li><a href="/cli/ssh-tunnels/">ssh</a></li></ol><h4>Other runtimes</h4><ol><li><a href="/lang/go-net-http/">Go</a></li><li><a href="/lang/java-httpclient/">Java</a></li><li><a href="/lang/php-guzzle-curl/">PHP</a></li><li><a href="/lang/dotnet-httpclient/">C#</a></li><li><a href="/lang/rust-reqwest/">Rust</a></li></ol><h4>Runtime and machine</h4><ol><li><a href="/os/environment-precedence/">Environment variables</a></li><li><a href="/os/no-proxy-rules/">The bypass list</a></li><li><a href="/os/systemd-units/">systemd</a></li><li><a href="/os/docker-build-and-run/">Docker</a></li><li><a href="/os/cron-and-schedulers/">cron and schedulers</a></li><li><a href="/os/windows-winhttp/">Windows</a></li></ol><h4>Everyday tools</h4><ol><li><a href="/tools/pip-and-python-tooling/">pip, poetry, uv</a></li><li><a href="/tools/npm-yarn-pnpm/">npm, yarn, pnpm</a></li><li><a href="/tools/apt-and-linux-packages/" aria-current="page">apt, dnf, apk</a></li><li><a href="/tools/ffmpeg-and-media-tools/">ffmpeg and media downloaders</a></li></ol><h4>Traps worth knowing</h4><ol><li><a href="/traps/who-resolves-the-name/">Who resolves the name, and how to prove which side did</a></li><li><a href="/traps/tunnel-and-certificates/">What a tunnel does to certificate checking</a></li><li><a href="/traps/keep-alive-across-a-hop/">Connection reuse</a></li><li><a href="/traps/redirects-and-lost-settings/">Redirects, retries, and settings that fall off on the way</a></li></ol></aside>
+<article class="doc"><p class="crumb"><a href="/">Wirebound</a> / <a href="/tools/">Everyday tools</a></p><h1>apt, dnf, apk: package traffic on a locked down box</h1><p class="stand">Usually the first thing that breaks on a locked down box.</p><div class="promo"><span>sponsor</span><a href="https://iprazon.com/" rel="sponsored noopener"><img src="/img/promo.2bf7a975.svg" alt="IPrazon Network: pools from a handful of addresses upward" width="1140" height="150" loading="lazy"></a></div><h2 id="why-apt-ignores-what-you-exported">Why apt ignores what you exported</h2>
+<pre><code>export https_proxy=http://198.51.100.14:8080
+sudo apt update          # идёт напрямую и падает</code></pre>
+<p><code>sudo</code> resets the environment by default. Your variable existed in your shell and never reached apt.</p>
+<p>Three ways round it, in increasing order of how much I would recommend them:</p>
+<pre><code># 1. на один вызов
+sudo -E apt update</code></pre>
+<p># 2. явно, на один вызов sudo http_proxy=$http_proxy https_proxy=$https_proxy apt update</p>
+<p># 3. в конфигурации apt, постоянно ```</p>
+<pre><code># /etc/apt/apt.conf.d/95proxy
+Acquire::http::Proxy  "http://user:pass@198.51.100.14:8080";
+Acquire::https::Proxy "http://user:pass@198.51.100.14:8080";</code></pre>
+<p>The third is the right answer for a machine that always needs it. Semicolons at the end of each line are required and their absence produces a parse error that does not name the line.</p>
+<p>Per host, for an internal mirror:</p>
+<pre><code>Acquire::http::Proxy::zerkalo.internal "DIRECT";</code></pre>
+<p><code>DIRECT</code> is apt's way of saying no proxy for this host. Different keyword from every other tool here.</p>
+<h2 id="dnf-and-yum">dnf and yum</h2>
+<pre><code># /etc/dnf/dnf.conf
+[main]
+proxy=http://198.51.100.14:8080
+proxy_username=user
+proxy_password=pass</code></pre>
+<p>Credentials as separate keys, so no url encoding. The file is readable by all users by default, so tighten it if the credentials matter:</p>
+<pre><code>sudo chmod 600 /etc/dnf/dnf.conf</code></pre>
+<p>Per repository, in the repo file:</p>
+<pre><code>[moj-repo]
+proxy=_none_</code></pre>
+<p><code>_none_</code> is dnf's keyword for direct. Again different from apt's <code>DIRECT</code> and from everything else.</p>
+<h2 id="apk-on-alpine">apk on Alpine</h2>
+<pre><code>export http_proxy=http://198.51.100.14:8080
+export https_proxy=http://198.51.100.14:8080
+apk update</code></pre>
+<p>apk reads the environment and has no config file entry of its own. In a Dockerfile that means build arguments, and the same warning applies: never credentials in a build argument.</p>
+<h2 id="keeping-credentials-out-of-world-readable-files">Keeping credentials out of world readable files</h2>
+<p>Every one of these config files sits in <code>/etc</code> and is readable by default. If the access can be tied to the machine's address instead, use that: nothing to store, nothing to leak, and one fewer file to remember when the password changes. <a href="https://iprazon.com/products/buy-ipv4-proxy" rel="noopener">Access bound to a server address</a> suits a fixed machine better than credentials in a world readable file.</p>
+<p>Where credentials are unavoidable:</p>
+<pre><code>sudo chown root:root /etc/apt/apt.conf.d/95proxy
+sudo chmod 600 /etc/apt/apt.conf.d/95proxy</code></pre>
+<h2 id="the-signing-key-problem">The signing key problem</h2>
+<p>A hop that terminates encryption and re-signs breaks package verification, because the package manager checks signatures that no longer match. The symptom is a signature error, not a network error, which sends people looking in the wrong place.</p>
+<p>If that is your situation, the hop must pass package traffic through untouched, or the repository host goes in the bypass list. Turning off signature checking is not an option worth considering.</p>
+<h2 id="confirming-it-works">Confirming it works</h2>
+<pre><code>sudo apt update 2&gt;&amp;1 | head -5
+sudo apt-get -o Debug::Acquire::http=true update 2&gt;&amp;1 | grep -i proxy | head</code></pre>
+<p>The second prints exactly what apt decided to use, which settles whether the config file was read at all.</p>
+<p>For dnf:</p>
+<pre><code>sudo dnf --verbose repolist 2&gt;&amp;1 | grep -i proxy | head</code></pre><div class="pager"><a href="/tools/npm-yarn-pnpm/"><s>Previous</s>npm, yarn, pnpm</a><a class="rt" href="/tools/ffmpeg-and-media-tools/"><s>Next</s>ffmpeg and media downloaders</a></div></article><aside class="strip"><h4>On this page</h4><a href="#why-apt-ignores-what-you-exported">Why apt ignores what you exported</a><a href="#dnf-and-yum">dnf and yum</a><a href="#apk-on-alpine">apk on Alpine</a><a href="#keeping-credentials-out-of-world-readable-files">Keeping credentials out of world readable files</a><a href="#the-signing-key-problem">The signing key problem</a><a href="#confirming-it-works">Confirming it works</a></aside>
+</div>
+<footer class="base"><div class="in2"><span>Wirebound</span>
+<a href="/">Index</a><a href="https://unimasterz.github.io/sitemap.xml">Sitemap</a>
+<span class="rt">38 pages</span></div></footer>
+<script>
+(function(){var K="wb-skin",d=document.documentElement,v=null;
+try{v=localStorage.getItem(K)}catch(e){}
+if(v)d.setAttribute("data-skin",v);
+var b=document.getElementById("sk");if(b)b.addEventListener("click",function(){
+var c=d.getAttribute("data-skin")==="day"?"night":"day";
+d.setAttribute("data-skin",c);try{localStorage.setItem(K,c)}catch(e){}});})();
+</script></body></html>

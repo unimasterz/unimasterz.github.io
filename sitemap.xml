@@ -5,7 +5,10 @@
   <url><loc>https://unimasterz.github.io/python/</loc></url>
   <url><loc>https://unimasterz.github.io/node/</loc></url>
   <url><loc>https://unimasterz.github.io/cli/</loc></url>
+  <url><loc>https://unimasterz.github.io/lang/</loc></url>
   <url><loc>https://unimasterz.github.io/os/</loc></url>
+  <url><loc>https://unimasterz.github.io/tools/</loc></url>
+  <url><loc>https://unimasterz.github.io/traps/</loc></url>
   <url><loc>https://unimasterz.github.io/start/how-this-was-tested/</loc></url>
   <url><loc>https://unimasterz.github.io/start/what-goes-wrong-first/</loc></url>
   <url><loc>https://unimasterz.github.io/start/reading-a-connection-line/</loc></url>
@@ -25,7 +28,23 @@
   <url><loc>https://unimasterz.github.io/cli/wget/</loc></url>
   <url><loc>https://unimasterz.github.io/cli/git/</loc></url>
   <url><loc>https://unimasterz.github.io/cli/ssh-tunnels/</loc></url>
+  <url><loc>https://unimasterz.github.io/lang/go-net-http/</loc></url>
+  <url><loc>https://unimasterz.github.io/lang/java-httpclient/</loc></url>
+  <url><loc>https://unimasterz.github.io/lang/php-guzzle-curl/</loc></url>
+  <url><loc>https://unimasterz.github.io/lang/dotnet-httpclient/</loc></url>
+  <url><loc>https://unimasterz.github.io/lang/rust-reqwest/</loc></url>
   <url><loc>https://unimasterz.github.io/os/environment-precedence/</loc></url>
   <url><loc>https://unimasterz.github.io/os/no-proxy-rules/</loc></url>
+  <url><loc>https://unimasterz.github.io/os/systemd-units/</loc></url>
+  <url><loc>https://unimasterz.github.io/os/docker-build-and-run/</loc></url>
   <url><loc>https://unimasterz.github.io/os/cron-and-schedulers/</loc></url>
+  <url><loc>https://unimasterz.github.io/os/windows-winhttp/</loc></url>
+  <url><loc>https://unimasterz.github.io/tools/pip-and-python-tooling/</loc></url>
+  <url><loc>https://unimasterz.github.io/tools/npm-yarn-pnpm/</loc></url>
+  <url><loc>https://unimasterz.github.io/tools/apt-and-linux-packages/</loc></url>
+  <url><loc>https://unimasterz.github.io/tools/ffmpeg-and-media-tools/</loc></url>
+  <url><loc>https://unimasterz.github.io/traps/who-resolves-the-name/</loc></url>
+  <url><loc>https://unimasterz.github.io/traps/tunnel-and-certificates/</loc></url>
+  <url><loc>https://unimasterz.github.io/traps/keep-alive-across-a-hop/</loc></url>
+  <url><loc>https://unimasterz.github.io/traps/redirects-and-lost-settings/</loc></url>
 </urlset>
