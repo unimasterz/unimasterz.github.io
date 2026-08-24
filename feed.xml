@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Wirebound</title>
+  <link>https://unimasterz.github.io/</link>
+  <atom:link rel="hub" href="https://pubsubhubbub.superfeedr.com/"/>
+  <atom:link rel="self" href="https://unimasterz.github.io/feed.xml" type="application/rss+xml"/>
+  <description>A per-client reference on how each tool handles a proxy</description>
+  <language>en</language>
+  <item>
+    <title>How every entry here was checked</title>
+    <link>https://unimasterz.github.io/start/how-this-was-tested/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/start/how-this-was-tested/</guid>
+  </item>
+  <item>
+    <title>The four things that break before anything else</title>
+    <link>https://unimasterz.github.io/start/what-goes-wrong-first/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/start/what-goes-wrong-first/</guid>
+  </item>
+  <item>
+    <title>Anatomy of the line your provider hands you</title>
+    <link>https://unimasterz.github.io/start/reading-a-connection-line/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/start/reading-a-connection-line/</guid>
+  </item>
+  <item>
+    <title>requests: session scope, env override, and the https key trap</title>
+    <link>https://unimasterz.github.io/python/requests/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/python/requests/</guid>
+  </item>
+  <item>
+    <title>httpx: explicit mounts, async transport, trust_env</title>
+    <link>https://unimasterz.github.io/python/httpx/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/python/httpx/</guid>
+  </item>
+  <item>
+    <title>aiohttp: why per-request beats per-session here</title>
+    <link>https://unimasterz.github.io/python/aiohttp/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/python/aiohttp/</guid>
+  </item>
+  <item>
+    <title>urllib3: the layer everything else sits on</title>
+    <link>https://unimasterz.github.io/python/urllib3/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/python/urllib3/</guid>
+  </item>
+  <item>
+    <title>Scrapy: middleware order decides which address wins</title>
+    <link>https://unimasterz.github.io/python/scrapy/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/python/scrapy/</guid>
+  </item>
+  <item>
+    <title>Selenium and Playwright from Python: two different setting paths</title>
+    <link>https://unimasterz.github.io/python/selenium-playwright-python/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/python/selenium-playwright-python/</guid>
+  </item>
+  <item>
+    <title>Global fetch and undici: ProxyAgent or nothing</title>
+    <link>https://unimasterz.github.io/node/global-fetch-undici/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/node/global-fetch-undici/</guid>
+  </item>
+  <item>
+    <title>axios: the proxy option that quietly does not apply</title>
+    <link>https://unimasterz.github.io/node/axios/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/node/axios/</guid>
+  </item>
+  <item>
+    <title>got: agents per protocol</title>
+    <link>https://unimasterz.github.io/node/got/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/node/got/</guid>
+  </item>
+  <item>
+    <title>node-fetch: still an agent, still not the same as fetch</title>
+    <link>https://unimasterz.github.io/node/node-fetch/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/node/node-fetch/</guid>
+  </item>
+  <item>
+    <title>Playwright: browser level, context level, and which overrides which</title>
+    <link>https://unimasterz.github.io/node/playwright-node/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/node/playwright-node/</guid>
+  </item>
+  <item>
+    <title>Puppeteer: where the setting lives and what the browser ignores</title>
+    <link>https://unimasterz.github.io/node/puppeteer/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/node/puppeteer/</guid>
+  </item>
+  <item>
+    <title>curl: every flag that changes the route, and what each proves</title>
+    <link>https://unimasterz.github.io/cli/curl/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/cli/curl/</guid>
+  </item>
+  <item>
+    <title>wget: config file, environment, and the flag that beats both</title>
+    <link>https://unimasterz.github.io/cli/wget/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/cli/wget/</guid>
+  </item>
+  <item>
+    <title>git: per remote, per host, and why credentials break</title>
+    <link>https://unimasterz.github.io/cli/git/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/cli/git/</guid>
+  </item>
+  <item>
+    <title>ssh: turning a shell into a local hop</title>
+    <link>https://unimasterz.github.io/cli/ssh-tunnels/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/cli/ssh-tunnels/</guid>
+  </item>
+  <item>
+    <title>Go: Transport, ProxyFromEnvironment, and the DNS side</title>
+    <link>https://unimasterz.github.io/lang/go-net-http/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/lang/go-net-http/</guid>
+  </item>
+  <item>
+    <title>Java: system properties, ProxySelector, and the auth quirk</title>
+    <link>https://unimasterz.github.io/lang/java-httpclient/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/lang/java-httpclient/</guid>
+  </item>
+  <item>
+    <title>PHP: Guzzle, raw cURL, and stream contexts</title>
+    <link>https://unimasterz.github.io/lang/php-guzzle-curl/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/lang/php-guzzle-curl/</guid>
+  </item>
+  <item>
+    <title>C#: WebProxy, the handler, and one client per lifetime</title>
+    <link>https://unimasterz.github.io/lang/dotnet-httpclient/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/lang/dotnet-httpclient/</guid>
+  </item>
+  <item>
+    <title>Rust: reqwest builders and the no_proxy list</title>
+    <link>https://unimasterz.github.io/lang/rust-reqwest/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/lang/rust-reqwest/</guid>
+  </item>
+  <item>
+    <title>Environment variables: exact precedence and the casing problem</title>
+    <link>https://unimasterz.github.io/os/environment-precedence/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/os/environment-precedence/</guid>
+  </item>
+  <item>
+    <title>The bypass list: what actually matches and what silently does not</title>
+    <link>https://unimasterz.github.io/os/no-proxy-rules/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/os/no-proxy-rules/</guid>
+  </item>
+  <item>
+    <title>systemd: giving a service its own settings</title>
+    <link>https://unimasterz.github.io/os/systemd-units/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/os/systemd-units/</guid>
+  </item>
+  <item>
+    <title>Docker: build time and run time are separate problems</title>
+    <link>https://unimasterz.github.io/os/docker-build-and-run/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/os/docker-build-and-run/</guid>
+  </item>
+  <item>
+    <title>cron and schedulers: the empty environment trap</title>
+    <link>https://unimasterz.github.io/os/cron-and-schedulers/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/os/cron-and-schedulers/</guid>
+  </item>
+  <item>
+    <title>Windows: WinHTTP, WinINET, and which programs read which</title>
+    <link>https://unimasterz.github.io/os/windows-winhttp/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/os/windows-winhttp/</guid>
+  </item>
+  <item>
+    <title>pip, poetry, uv: three config files, one setting</title>
+    <link>https://unimasterz.github.io/tools/pip-and-python-tooling/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/tools/pip-and-python-tooling/</guid>
+  </item>
+  <item>
+    <title>npm, yarn, pnpm: registry traffic and the strict-ssl mistake</title>
+    <link>https://unimasterz.github.io/tools/npm-yarn-pnpm/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/tools/npm-yarn-pnpm/</guid>
+  </item>
+  <item>
+    <title>apt, dnf, apk: package traffic on a locked down box</title>
+    <link>https://unimasterz.github.io/tools/apt-and-linux-packages/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/tools/apt-and-linux-packages/</guid>
+  </item>
+  <item>
+    <title>ffmpeg and media downloaders: the flags that exist and the ones that do not</title>
+    <link>https://unimasterz.github.io/tools/ffmpeg-and-media-tools/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/tools/ffmpeg-and-media-tools/</guid>
+  </item>
+  <item>
+    <title>Who resolves the name, and how to prove which side did</title>
+    <link>https://unimasterz.github.io/traps/who-resolves-the-name/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/traps/who-resolves-the-name/</guid>
+  </item>
+  <item>
+    <title>What a tunnel does to certificate checking</title>
+    <link>https://unimasterz.github.io/traps/tunnel-and-certificates/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/traps/tunnel-and-certificates/</guid>
+  </item>
+  <item>
+    <title>Connection reuse: when it survives the hop and when it does not</title>
+    <link>https://unimasterz.github.io/traps/keep-alive-across-a-hop/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/traps/keep-alive-across-a-hop/</guid>
+  </item>
+  <item>
+    <title>Redirects, retries, and settings that fall off on the way</title>
+    <link>https://unimasterz.github.io/traps/redirects-and-lost-settings/</link>
+    <guid isPermaLink="true">https://unimasterz.github.io/traps/redirects-and-lost-settings/</guid>
+  </item>
+</channel>
+</rss>
